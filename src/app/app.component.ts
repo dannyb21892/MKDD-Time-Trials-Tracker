@@ -12,6 +12,9 @@ export class AppComponent implements OnInit{
   constructor(private pps: PlayersPageService) {}
 
   ngOnInit() {
+    this.pps.getUserList().subscribe(() => {
+      this.pps.getUserData("AJ Skinner").subscribe((data) => {console.log(data)})
+    })
     this.pps.getStandards().subscribe(
       data => {
         console.log(data)
