@@ -1,1 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
+@import "~ag-grid-community/dist/styles/ag-grid.css";
+@import "~ag-grid-community/dist/styles/ag-theme-balham-dark.css";
+
+.cell-span {
+  background-color: #1c1f20;
+}
+
+.cell-border {
+  border-bottom-style: solid !important;
+  border-bottom-width: 1px !important;
+  border-bottom-color: #5c5c5c !important;
+}

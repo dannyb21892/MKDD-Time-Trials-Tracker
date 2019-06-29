@@ -11,13 +11,25 @@ export class AppComponent implements OnInit{
 
   constructor(private pps: PlayersPageService) {}
 
+  userData: any
+  standards: any
+  wrs: any
+
   ngOnInit() {
     this.pps.getUserList().subscribe(() => {
-      this.pps.getUserData("AJ Skinner").subscribe((data) => {console.log(data)})
+      this.pps.getUserData("Daniel Baamonde").subscribe((data) => this.userData = data)
     })
     this.pps.getStandards().subscribe(
       data => {
-        console.log(data)
+        this.standards = data
+      },
+      error => {
+        console.log(error)
+      }
+    )
+    this.pps.getWRs().subscribe(
+      data => {
+        this.wrs = data
       },
       error => {
         console.log(error)

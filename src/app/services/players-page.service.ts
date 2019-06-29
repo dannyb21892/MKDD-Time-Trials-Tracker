@@ -12,10 +12,12 @@ export class PlayersPageService implements OnInit{
   private corsAnywhere: string = "https://cors-anywhere.herokuapp.com/"
   private standardsURL: string = "https://www.mariokart64.com/mkdd/standardc.php"
   private usersURL: string = "https://www.mariokart64.com/mkdd/profile.php"
+  private wrsURL: string = "https://www.mariokart64.com/mkdd/wrc.php"
 
   userList: any = {}
   courseNamesAbbv = []
   courseNames = []
+  wrs = []
 
   constructor(private http: HttpClient ) { }
 
@@ -138,7 +140,6 @@ export class PlayersPageService implements OnInit{
       return of(this.userList[username].data)
 
     let address = this.corsAnywhere + this.usersURL + `?pid=${this.userList[username].pid}`
-    console.log(address)
     return this.http.get(address, {responseType: 'text'}).pipe(
       map(data => {
         data = data.split("60Hz Times")[0].split("50Hz Times")[0]
@@ -192,6 +193,20 @@ export class PlayersPageService implements OnInit{
           }
         })
         return this.userList[username].data
+      })
+    )
+  }
+
+  getWRs = () => {
+    if(this.wrs.length === 32)
+      return of(this.wrs)
+
+    let address = this.corsAnywhere + this.wrsURL
+    return this.http.get(address, {responseType: 'text'}).pipe(
+      map((res: any) => {
+        let timeFinder = /[0-9]?\'?[0-9]?[0-9]\"[0-9][0-9]?[0-9]?/g
+        this.wrs = [...res.matchAll(timeFinder)].slice(0,32).map(x => x[0])
+        return this.wrs
       })
     )
   }
