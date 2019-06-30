@@ -1,4 +1,15 @@
-<!--The content below is only a placeholder and can be replaced.-->
+<form class="nameField">
+  <mat-form-field class="nameFieldInput">
+    <input matInput #nameField
+            placeholder="Enter your Player's Page Display Name"
+            name="username"
+            [(ngModel)]="username"
+            (blur)="getUserData()"
+            (focus)="listenForEnter()"
+    >
+  </mat-form-field>
+</form>
+<br/>
 <standards-grid
   [standards]="standards"
   [wrs]="wrs"

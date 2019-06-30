@@ -147,6 +147,7 @@ export class PlayersPageService implements OnInit{
     }
     else {
       console.log("username not found in list")
+      return of({})
     }
   }
 

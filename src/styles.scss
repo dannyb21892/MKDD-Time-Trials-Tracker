@@ -2,6 +2,8 @@
 @import "~ag-grid-community/dist/styles/ag-grid.css";
 @import "~ag-grid-community/dist/styles/ag-theme-balham-dark.css";
 
+@import '@angular/material/prebuilt-themes/pink-bluegrey.css';
+
 body {
   background-color: black;
 }
@@ -33,4 +35,14 @@ body {
 
 .ag-header-group-cell-label, .ag-header-cell-label {
   justify-content: center !important;
+}
+
+.nameField {
+  width: 100%;
+}
+.nameFieldInput {
+  width: 100%;
+}
+.mat-input-element{
+  color: white !important;
 }
