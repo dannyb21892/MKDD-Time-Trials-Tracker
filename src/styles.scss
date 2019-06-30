@@ -2,12 +2,35 @@
 @import "~ag-grid-community/dist/styles/ag-grid.css";
 @import "~ag-grid-community/dist/styles/ag-theme-balham-dark.css";
 
+body {
+  background-color: black;
+}
+
 .cell-span {
   background-color: #1c1f20;
 }
 
-.cell-border {
+.cell-course-border {
   border-bottom-style: solid !important;
   border-bottom-width: 1px !important;
   border-bottom-color: #5c5c5c !important;
+}
+
+.cell-data-border {
+  border-right-style: solid !important;
+  border-right-width: 1px !important;
+  border-right-color: #5c5c5c !important;
+}
+
+.wr-time {
+  background-color: #ffc500;
+  color: black;
+}
+
+.pr-time {
+  background-color: #4287f5;
+}
+
+.ag-header-group-cell-label, .ag-header-cell-label {
+  justify-content: center !important;
 }
