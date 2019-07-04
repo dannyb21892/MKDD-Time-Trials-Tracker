@@ -54,10 +54,11 @@ export class AppComponent implements OnInit{
   }
 
   getUserData = () => {
-    this.pps.getUserData(this.username).subscribe(
+    this.pps.getUserData(this.username, true).subscribe(
       (data) => {
         if(Object.keys(data).length){
           this.userData = data;
+          console.log(this.userData)
           this.syncDisabled = false
         } else {
           this.userData = {};

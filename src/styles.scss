@@ -8,6 +8,14 @@ body {
   background-color: black;
 }
 
+.control-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 98%;
+  margin-left: 1%;
+}
+
 .cell-span {
   background-color: #1c1f20;
 }
@@ -41,14 +49,8 @@ body {
   width: 100%;
 }
 .nameFieldInput {
-  width: 100%;
+  width: 95%;
 }
 .mat-input-element{
   color: white !important;
-}
-
-.standards-grid{
-  width: 96%;
-  left: 2%;
-  height: 90%;
 }

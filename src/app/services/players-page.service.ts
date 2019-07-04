@@ -138,11 +138,11 @@ export class PlayersPageService implements OnInit{
     )
   }
 
-  getUserData = username => {
+  getUserData = (username, clearLocal=false) => {
     if(!Object.keys(this.userList).length){
       this.getUserList().subscribe(data => {
         if(this.userList[username]){
-          this.parseUserData(username)
+          this.parseUserData(username, clearLocal)
         }
         else {
           console.log("username not found in list")
@@ -150,7 +150,7 @@ export class PlayersPageService implements OnInit{
       })
     }
     else if(this.userList[username]){
-      return this.parseUserData(username)
+      return this.parseUserData(username, clearLocal)
     }
     else {
       console.log("username not found in list")
@@ -158,9 +158,9 @@ export class PlayersPageService implements OnInit{
     }
   }
 
-  parseUserData = username => {
+  parseUserData = (username, clearLocal=false) => {
     this.username = username
-    this.setLocalStorage(null)
+    if(clearLocal) this.setLocalStorage(null)
     if(this.userList[username].data)
       return of(this.userList[username].data)
 
@@ -176,7 +176,26 @@ export class PlayersPageService implements OnInit{
         this.courseNames.forEach((c, ci) => {
           let htmlSegment = data.split(c)[1].split("<td rowspan='2'>")[0]
           if(htmlSegment.includes("<td>NT</td>")){
-            this.userList[username].data[c] = null
+            this.userList[username].data[this.courseNamesAbbv[ci]] = {
+              threeLap: {
+                value: 599.99,
+                rank: 9999,
+                std: "Newbie",
+                prsr: 0,
+                date: this.formatDate(new Date()),
+                time: `9'59"99`,
+                points: 31
+              },
+              fastLap: {
+                value: 599.99,
+                rank: 9999,
+                std: "Newbie",
+                prsr: 0,
+                date: this.formatDate(new Date()),
+                time: `9'59"99`,
+                points: 31
+              }
+            }
           }
           else {
             let threeLapRow = htmlSegment.split("<tr>")[0]
@@ -241,20 +260,16 @@ export class PlayersPageService implements OnInit{
   }
 
   getRank = (courseId, time, rowNode) => {
-    console.log("getting rank")
     if(this.leaderboards[courseId].length){
-      console.log("in cache")
       rowNode.setDataValue("rank", this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(time)) + 1)
       this.setLocalStorage(rowNode.data)
     }
     else {
-      console.log("not in cache")
       this.getLeaderboard(courseId, rowNode, time)
     }
   }
 
   getLeaderboard = (courseId, rowNode, time, start = 1, recursive = true) => {
-    console.log("get lb with start: ", start)
     let address = this.corsAnywhere + this.leaderboardURL + courseId + (start > 1 ? "&start=" + start : "")
     this.http.get(address, {responseType: 'text'}).pipe(
       map((res: any) => {
@@ -262,16 +277,13 @@ export class PlayersPageService implements OnInit{
         let timeFinder = /[0-9]?\'?[0-9]?[0-9]\"[0-9][0-9]?[0-9]?/g
         let times = [...res.matchAll(timeFinder)].map(x => x[0])
         this.leaderboards[courseId] = [...this.leaderboards[courseId], ...times]
-        console.log("size: ", this.leaderboards[courseId].length)
         if(recursive){
           for(let start = 101; start <= leaderboardSize; start=start+100){
-            console.log("preparing new lb get")
             this.getLeaderboard(courseId, rowNode, time, start, false)
           }
           return false
         }
         else if(this.leaderboards[courseId].length === leaderboardSize){
-          console.log("done getting lb")
           this.leaderboards[courseId].sort((a,b) => this.timeConverter(a) - this.timeConverter(b))
           rowNode.setDataValue("rank", this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(time)) + 1)
           return rowNode.data
@@ -321,5 +333,6 @@ export class PlayersPageService implements OnInit{
     return value
   }
 
+  formatDate = date => `${date.getFullYear()}-${(date.getMonth() < 9 ? "0" : "") + (date.getMonth()+1)}-${(date.getDay() < 10 ? "0" : "") + date.getDay()}`
 
 }

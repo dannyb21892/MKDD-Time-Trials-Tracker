@@ -13,13 +13,15 @@ import { MatButtonModule } from '@angular/material/button';
 //components
 import { AppComponent } from './app.component';
 import { StandardsGrid } from './components/standards-grid.component'
+import { OverallStats } from './components/overall-stats.component'
 import { CellEditorComponent } from './components/cell-editor.component'
 
 @NgModule({
   declarations: [
     AppComponent,
     StandardsGrid,
-    CellEditorComponent
+    CellEditorComponent,
+    OverallStats
   ],
   imports: [
     BrowserModule,

@@ -30,10 +30,17 @@ export class CellEditorComponent implements ICellEditorAngularComp, AfterViewIni
         return this.cancelBeforeStart;
     }
 
-    // will reject the number if it greater than 1,000,000
-    // not very practical, but demonstrates the method.
     isCancelAfterEnd(): boolean {
-        return !(this.value.includes('"') && !!this.value.split('"')[1])
+      let timeFinder = /[1-9]\'[0-9][0-9]\"[0-9][0-9]?[0-9]?|[1-9]\"[0-9][0-9]?[0-9]?/g; //times of the form x'yy"zzz or x"zzz where x must be 1-9, and zzz can be zz or z also
+      let potentialMatch = this.value.match(timeFinder)
+      let out
+      if(potentialMatch){
+        out = potentialMatch[0] !== this.value
+      }
+      else {
+        out = true
+      }
+      return out
     };
 
     onKeyDown(event): void {
@@ -57,28 +64,29 @@ export class CellEditorComponent implements ICellEditorAngularComp, AfterViewIni
     private isKeyPressedValid(event): boolean {
         const charCode = this.getCharCodeFromEvent(event);
         const charStr = event.key ? event.key : String.fromCharCode(charCode);
-        if(["Backspace", "Delete"].includes(charStr)){this.value = ""; return false;}
-        else if(!`1234567890'"`.includes(charStr)){ return false;}
-        else if(this.value.length >= 8){ return false;}
-        else if(this.value.length === 0){ return "123456789".includes(charStr);}
-        else if(this.value.length === 1){ return true;}
-        else if(this.value.length === 2){
-          if(this.value.includes("'") || this.value.includes('"')){return "1234567890".includes(charStr)}
-          else {return charStr === '"'}
-        }
-        else if(this.value.length === 3){return "1234567890".includes(charStr)}
-        else if(this.value.length === 4){
-          if(this.value.includes("'")){return charStr === '"'}
-          else {return "1234567890".includes(charStr)}
-        }
-        else if(this.value.length === 5){
-          if(this.value.includes("'") || this.value[2] === '"'){return "1234567890".includes(charStr)}
-          else {return false}
-        }
-        else if(this.value.length === 6){
-          if(this.value.includes("'")){return "1234567890".includes(charStr)}
-          else {return false}
-        }
-        else {return "1234567890".includes(charStr)}
+        console.log(charStr)
+        if(["Backspace","Delete","1","2","3","4","5","6","7","8","9","0","'",'"'].includes(charStr)){ return true;}
+        else{return false;}
+        // else if(this.value.length >= 8){ return false;}
+        // else if(this.value.length === 0){ return "123456789".includes(charStr);}
+        // else if(this.value.length === 1){ return true;}
+        // else if(this.value.length === 2){
+        //   if(this.value.includes("'") || this.value.includes('"')){return "1234567890".includes(charStr)}
+        //   else {return charStr === '"'}
+        // }
+        // else if(this.value.length === 3){return "1234567890".includes(charStr)}
+        // else if(this.value.length === 4){
+        //   if(this.value.includes("'")){return charStr === '"'}
+        //   else {return "1234567890".includes(charStr)}
+        // }
+        // else if(this.value.length === 5){
+        //   if(this.value.includes("'") || this.value[2] === '"'){return "1234567890".includes(charStr)}
+        //   else {return false}
+        // }
+        // else if(this.value.length === 6){
+        //   if(this.value.includes("'")){return "1234567890".includes(charStr)}
+        //   else {return false}
+        // }
+        // else {return "1234567890".includes(charStr)}
     }
 }

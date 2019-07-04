@@ -107,6 +107,7 @@ export class StandardsGrid implements OnInit, OnChanges {
       this.rowData.push(row2)
     })
     this.gridLoadedFirstTime = true;
+    this.rowData = [...this.rowData]//trigger change detection for average stats child
   }
 
   initializeRow = (id, allBuckets) => {
@@ -118,6 +119,7 @@ export class StandardsGrid implements OnInit, OnChanges {
       trial: id.slice(-1) === "3" ? "3-lap" : "f-lap",
     }
     row = Object.assign(row, this.userData[course][trial])
+    row["prsr"] = row["prsr"] + "%"
     allBuckets.forEach(b => {
       row[b] = this.standards.standards[course][trial][b].time
     })
@@ -137,7 +139,7 @@ export class StandardsGrid implements OnInit, OnChanges {
       let out: any[] = [keyVal[1], this.timeConverter(keyVal[1])]
       return out
     })
-    .filter(x => x && x[1] >= wr)
+    .filter(x => x && x[1] > wr)
     return params.value === rowTimes[0][0]
   }
 
@@ -149,7 +151,7 @@ export class StandardsGrid implements OnInit, OnChanges {
 
       return [keyVal[1], this.timeConverter(keyVal[1])]
     })
-    .filter(x => x && x[1] >= pr)
+    .filter(x => x && x[1] > pr)
     return params.value === rowTimes[0][0]
   }
 
@@ -171,9 +173,10 @@ export class StandardsGrid implements OnInit, OnChanges {
     rowNode.setDataValue("date", this.formatDate(new Date()))
     let standardAndPoints = this.getStandardAndPointsFromTime(event.newValue, rowNode)
     rowNode.setDataValue("std", standardAndPoints.standard)
-    rowNode.setDataValue("points", standardAndPoints.points)
-    rowNode.setDataValue("prsr", Math.round(10000 * this.timeConverter(this.wrs[event.rowIndex]) / this.timeConverter(event.newValue)) / 100)
+    rowNode.setDataValue("points", Math.round(standardAndPoints.points))
+    rowNode.setDataValue("prsr", (Math.round(10000 * this.timeConverter(this.wrs[event.rowIndex]) / this.timeConverter(event.newValue)) / 100) + "%")
     this.pps.getRank(event.rowIndex, event.newValue, rowNode)
+    this.rowData = [...this.rowData]
   }
 
   getStandardAndPointsFromTime = (time, row) => {
@@ -182,7 +185,7 @@ export class StandardsGrid implements OnInit, OnChanges {
       .filter(keyVal => !["course", "date", "id", "points", "prsr", "rank", "std", "time", "trial", "value"].includes(keyVal[0]))
       .map(keyVal => {return [keyVal[0], this.timeConverter(keyVal[1])]})
       .sort((a,b) => a[1] - b[1])
-    let pair = values.find(pair => pair[1] >= value)
+    let pair = values.find(pair => pair[1] > value)
     return {points: this.points[pair[0]], standard: pair[0]}
   }
 
@@ -281,7 +284,7 @@ export class StandardsGrid implements OnInit, OnChanges {
       headerName: "Standard",
       field: "std",
       colId: "std",
-      width: 80,
+      width: 110,
       cellStyle: {"text-align": 'center'},
       cellClassRules: { "cell-data-border": "true"},
       pinned: 'left',
@@ -297,7 +300,7 @@ export class StandardsGrid implements OnInit, OnChanges {
       headerName: "PRSR",
       field: "prsr",
       colId: "prsr",
-      width: 60,
+      width: 65,
       cellStyle: {"text-align": 'center'},
       cellClassRules: { "cell-data-border": "true"},
       pinned: 'left',

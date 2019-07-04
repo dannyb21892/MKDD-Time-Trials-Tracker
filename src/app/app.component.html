@@ -1,14 +1,24 @@
-<form class="nameField">
-  <mat-form-field class="nameFieldInput">
-    <input matInput #nameField
-            placeholder="Enter your Player's Page Display Name"
-            name="username"
-            [(ngModel)]="username"
-            (blur)="getUserData()"
-            (focus)="listenForEnter()"
-    >
-  </mat-form-field>
-</form>
+<div class="control-container">
+  <form class="nameField">
+    <mat-form-field class="nameFieldInput">
+      <input matInput #nameField
+              placeholder="Enter your Player's Page Display Name"
+              name="username"
+              [(ngModel)]="username"
+              (blur)="getUserData()"
+              (focus)="listenForEnter()"
+              autocomplete="off"
+      >
+    </mat-form-field>
+  </form>
+  <button mat-raised-button
+          style="width: 200px; min-width: 200px; height: 50px; text-align: center;"
+          color="primary"
+          (click)="syncData()"
+          [disabled]="syncDisabled">
+          Sync to Player's Page
+  </button>
+</div>
 <standards-grid
   [standards]="standards"
   [wrs]="wrs"
@@ -18,8 +28,3 @@
 >
 </standards-grid>
 <br/>
-<button mat-raised-button color="primary"
-        (click)="syncData()"
-        [disabled]="syncDisabled">
-        Sync to Player's Page
-</button>
