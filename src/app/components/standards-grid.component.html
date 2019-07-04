@@ -1,9 +1,10 @@
 <ag-grid-angular
-    style="width: 98%; height: 800px; margin-left: 1%;"
+    style="width: 98%; height: 813px; margin-left: 1%;"
     class="ag-theme-balham-dark standards-grid"
     [rowData]="rowData"
     [columnDefs]="columnDefs"
     [suppressRowTransform]="true"
+    [suppressMovableColumns]="true"
     [getRowNodeId]="getRowNodeId"
     (cellValueChanged)="onCellChanged($event)"
     (gridReady)="onGridReady($event)"

@@ -14,6 +14,7 @@ export class AppComponent implements OnInit{
   userData: any;
   standards: any;
   wrs: any;
+  dumbChangeDetector = {};
 
   username: string = "";
   lastValidUsername: string = ""
@@ -24,7 +25,15 @@ export class AppComponent implements OnInit{
 
   ngOnInit() {
     this.pps.getUserList().subscribe(() => {
-      //this.pps.getUserData("Daniel Baamonde").subscribe((data) => this.userData = data)
+      let localStorage = this.pps.getLocalStorage()
+      console.log(localStorage)
+      if(localStorage && localStorage.username){
+        this.username = localStorage.username
+        this.pps.getUserData(localStorage.username).subscribe((data) => {
+          this.userData = data;
+          this.syncDisabled = false
+        })
+      }
     })
     this.pps.getStandards().subscribe(
       data => {
@@ -45,7 +54,6 @@ export class AppComponent implements OnInit{
   }
 
   getUserData = () => {
-    console.log(this.username)
     this.pps.getUserData(this.username).subscribe(
       (data) => {
         if(Object.keys(data).length){
@@ -69,7 +77,9 @@ export class AppComponent implements OnInit{
   }
 
   syncData = () => {
-
+    this.pps.setLocalStorage(null)
+    this.dumbChangeDetector = {};
+    //this.userData = Object.assign({}, this.userData)
   }
 
   onEnter = key => {

@@ -23,7 +23,6 @@ export class CellEditorComponent implements ICellEditorAngularComp, AfterViewIni
     }
 
     getValue(): any {
-      console.log(this.value)
         return this.value;
     }
 

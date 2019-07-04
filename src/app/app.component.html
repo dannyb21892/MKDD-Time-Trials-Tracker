@@ -9,16 +9,17 @@
     >
   </mat-form-field>
 </form>
-<br/>
 <standards-grid
   [standards]="standards"
   [wrs]="wrs"
   [userData]="userData"
+  [username]="username"
+  [dumbChangeDetector]="dumbChangeDetector"
 >
 </standards-grid>
 <br/>
 <button mat-raised-button color="primary"
-        (click)="syncData"
+        (click)="syncData()"
         [disabled]="syncDisabled">
         Sync to Player's Page
 </button>

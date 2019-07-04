@@ -12,6 +12,10 @@ export class StandardsGrid implements OnInit, OnChanges {
   @Input() standards: any;
   @Input() wrs: any;
   @Input() userData: any;
+  @Input() username: any;
+  @Input() dumbChangeDetector: any;
+
+  localUserData: any = null;
 
   columnDefs = [];
   rowData = [];
@@ -20,9 +24,13 @@ export class StandardsGrid implements OnInit, OnChanges {
   gridApi;
   gridColumnApi;
 
+  gridLoadedFirstTime = false;
+
   constructor(private pps: PlayersPageService) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.localUserData = this.pps.getLocalStorage();
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     Object.keys(changes).forEach(key => {
@@ -38,83 +46,12 @@ export class StandardsGrid implements OnInit, OnChanges {
   }
 
   setStandards = () => {
-    this.columnDefs = [];
+    this.columnDefs = this.defaultColDefs;
     this.rowData = [];
     if(!this.standards) return
 
     let allBuckets = Object.keys(this.standards.standards[Object.keys(this.standards.standards)[0]].fastLap)
     let headers = [...new Set(allBuckets.map(k => k.split(" ")[0].split("+")[0]))]
-
-    this.columnDefs = [{
-      headerName: "Course",
-      field: "course",
-      rowSpan: function(params) {
-        return params.data.course === "" ? 1 : 2
-      },
-      width: 65,
-      cellClassRules: { "cell-span": "value.length > 0", "cell-course-border": "value !== 'LC'", "cell-data-border": "true"},
-      cellStyle: {"text-align": 'center', 'line-height': 3.5, "font-size": '16px'},
-      pinned: 'left',
-    },{
-      headerName: "Trial",
-      field: "trial",
-      width: 60,
-      cellStyle: {"text-align": 'center'},
-      cellClassRules: { "cell-data-border": "true"},
-      pinned: 'left',
-    },{
-      headerName: "User Data",
-      children: [{
-        headerName: "PR",
-        field: "time",
-        width: 80,
-        cellStyle: {"text-align": 'center'},
-        cellClassRules: { "cell-data-border": "true"},
-        cellEditorFramework: CellEditorComponent,
-        editable: true,
-        pinned: 'left',
-      },{
-        headerName: "Points",
-        field: "points",
-        colId: "points",
-        width: 60,
-        cellStyle: {"text-align": 'center'},
-        cellClassRules: { "cell-data-border": "true"},
-        pinned: 'left',
-      },{
-        headerName: "Standard",
-        field: "std",
-        colId: "std",
-        width: 80,
-        cellStyle: {"text-align": 'center'},
-        cellClassRules: { "cell-data-border": "true"},
-        pinned: 'left',
-      },{
-        headerName: "Rank",
-        field: "rank",
-        colId: "rank",
-        width: 60,
-        cellStyle: {"text-align": 'center'},
-        cellClassRules: { "cell-data-border": "true"},
-        pinned: 'left',
-      },{
-        headerName: "PRSR",
-        field: "prsr",
-        colId: "prsr",
-        width: 60,
-        cellStyle: {"text-align": 'center'},
-        cellClassRules: { "cell-data-border": "true"},
-        pinned: 'left',
-      },{
-        headerName: "Date",
-        field: "date",
-        colId: "date",
-        width: 100,
-        cellStyle: {"text-align": 'center'},
-        cellClassRules: { "cell-data-border": "true"},
-        pinned: 'left',
-      }]
-    }]
 
     headers.forEach(h => {
       let children = allBuckets.filter(b => b.includes(h))
@@ -148,32 +85,43 @@ export class StandardsGrid implements OnInit, OnChanges {
 
       this.columnDefs.push(colDef)
     })
-
     this.standards.courses.forEach(course => {
-      let row1 = {
-        id: course + "3",
-        course: course,
-        trial: "3-lap",
+      let id1 = course + "3"
+      let id2 = course + "f"
+      let row1
+      let row2
+      if(this.localUserData.username === this.username && this.localUserData[id1]) {
+        row1 = this.localUserData[id1]
       }
-      let row2 = {
-        id: course + "f",
-        course: "",
-        trial: "f-lap",
+      else {
+        row1 = this.initializeRow(id1, allBuckets)
+      }
+      if(this.localUserData.username === this.username && this.localUserData[id2]) {
+        row2 = this.localUserData[id2]
+      }
+      else {
+        row2 = this.initializeRow(id2, allBuckets)
       }
 
-      Object.assign(row1, this.userData[course]["threeLap"])
-      Object.assign(row2, this.userData[course]["fastLap"])
-
-      row1["time"] = this.valueConverter(this.userData[course]["threeLap"].value)
-      row2["time"] = this.valueConverter(this.userData[course]["fastLap"].value)
-
-      allBuckets.forEach(b => {
-        row1[b] = this.standards.standards[course].threeLap[b].time
-        row2[b] = this.standards.standards[course].fastLap[b].time
-      })
       this.rowData.push(row1)
       this.rowData.push(row2)
     })
+    this.gridLoadedFirstTime = true;
+  }
+
+  initializeRow = (id, allBuckets) => {
+    let course = id.slice(0,-1)
+    let trial = id.slice(-1) === "3" ? "threeLap" : "fastLap"
+    let row = {
+      id: id,
+      course: id.slice(-1) === "3" ? course : "",
+      trial: id.slice(-1) === "3" ? "3-lap" : "f-lap",
+    }
+    row = Object.assign(row, this.userData[course][trial])
+    allBuckets.forEach(b => {
+      row[b] = this.standards.standards[course][trial][b].time
+    })
+    return row
   }
 
   setWrs = () => {
@@ -206,8 +154,14 @@ export class StandardsGrid implements OnInit, OnChanges {
   }
 
   setUserData = () => {
-    if(this.wrs && Object.keys(this.userData).length) this.setStandards()
+    this.localUserData = this.pps.getLocalStorage();
+    if(Object.keys(this.userData).length) {
+      this.username = this.pps.getUsername();
+      if(this.wrs) this.setStandards();
+    }
   }
+
+  setUsername = () => {}
 
   onCellChanged = event => {
     if(event.colDef.field !== "time") return;
@@ -277,4 +231,84 @@ export class StandardsGrid implements OnInit, OnChanges {
     return data.id;
   };
 
+  setDumbChangeDetector = () => {
+    if(this.gridLoadedFirstTime){
+      this.localUserData = this.pps.getLocalStorage();
+      this.setStandards();
+    }
+  }
+
+  defaultColDefs = [{
+    headerName: "Course",
+    field: "course",
+    rowSpan: function(params) {
+      return params.data.course === "" ? 1 : 2
+    },
+    width: 65,
+    cellClassRules: { "cell-span": "value.length > 0", "cell-course-border": "value !== 'LC'", "cell-data-border": "true"},
+    cellStyle: {"text-align": 'center', 'line-height': 3.5, "font-size": '16px'},
+    pinned: 'left',
+    //lockPosition: true
+  },{
+    headerName: "Trial",
+    field: "trial",
+    width: 60,
+    cellStyle: {"background-color": "#1c1f20", "text-align": 'center'},
+    cellClassRules: { "cell-data-border": "true"},
+    pinned: 'left',
+    //lockPosition: true
+  },{
+    headerName: "User Data",
+    marryChildren: true,
+    children: [{
+      headerName: "PR",
+      field: "time",
+      width: 80,
+      cellStyle: {"text-align": 'center'},
+      cellClassRules: { "cell-data-border": "true"},
+      cellEditorFramework: CellEditorComponent,
+      editable: true,
+      pinned: 'left',
+    },{
+      headerName: "Points",
+      field: "points",
+      colId: "points",
+      width: 60,
+      cellStyle: {"text-align": 'center'},
+      cellClassRules: { "cell-data-border": "true"},
+      pinned: 'left',
+    },{
+      headerName: "Standard",
+      field: "std",
+      colId: "std",
+      width: 80,
+      cellStyle: {"text-align": 'center'},
+      cellClassRules: { "cell-data-border": "true"},
+      pinned: 'left',
+    },{
+      headerName: "Rank",
+      field: "rank",
+      colId: "rank",
+      width: 60,
+      cellStyle: {"text-align": 'center'},
+      cellClassRules: { "cell-data-border": "true"},
+      pinned: 'left',
+    },{
+      headerName: "PRSR",
+      field: "prsr",
+      colId: "prsr",
+      width: 60,
+      cellStyle: {"text-align": 'center'},
+      cellClassRules: { "cell-data-border": "true"},
+      pinned: 'left',
+    },{
+      headerName: "Date",
+      field: "date",
+      colId: "date",
+      width: 100,
+      cellStyle: {"text-align": 'center'},
+      cellClassRules: { "cell-data-border": "true"},
+      pinned: 'left',
+    }]
+  }]
 }

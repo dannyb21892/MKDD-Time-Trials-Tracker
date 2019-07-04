@@ -20,6 +20,7 @@ export class PlayersPageService implements OnInit{
   courseNames = [];
   wrs = [];
   leaderboards = [];
+  username: string;
 
   constructor(private http: HttpClient) {
     for(let i=0; i<32; i++){
@@ -158,6 +159,8 @@ export class PlayersPageService implements OnInit{
   }
 
   parseUserData = username => {
+    this.username = username
+    this.setLocalStorage(null)
     if(this.userList[username].data)
       return of(this.userList[username].data)
 
@@ -238,15 +241,20 @@ export class PlayersPageService implements OnInit{
   }
 
   getRank = (courseId, time, rowNode) => {
+    console.log("getting rank")
     if(this.leaderboards[courseId].length){
+      console.log("in cache")
       rowNode.setDataValue("rank", this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(time)) + 1)
+      this.setLocalStorage(rowNode.data)
     }
     else {
+      console.log("not in cache")
       this.getLeaderboard(courseId, rowNode, time)
     }
   }
 
   getLeaderboard = (courseId, rowNode, time, start = 1, recursive = true) => {
+    console.log("get lb with start: ", start)
     let address = this.corsAnywhere + this.leaderboardURL + courseId + (start > 1 ? "&start=" + start : "")
     this.http.get(address, {responseType: 'text'}).pipe(
       map((res: any) => {
@@ -254,19 +262,49 @@ export class PlayersPageService implements OnInit{
         let timeFinder = /[0-9]?\'?[0-9]?[0-9]\"[0-9][0-9]?[0-9]?/g
         let times = [...res.matchAll(timeFinder)].map(x => x[0])
         this.leaderboards[courseId] = [...this.leaderboards[courseId], ...times]
+        console.log("size: ", this.leaderboards[courseId].length)
         if(recursive){
           for(let start = 101; start <= leaderboardSize; start=start+100){
+            console.log("preparing new lb get")
             this.getLeaderboard(courseId, rowNode, time, start, false)
           }
+          return false
         }
         else if(this.leaderboards[courseId].length === leaderboardSize){
+          console.log("done getting lb")
           this.leaderboards[courseId].sort((a,b) => this.timeConverter(a) - this.timeConverter(b))
-          console.log(this.leaderboards[courseId])
           rowNode.setDataValue("rank", this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(time)) + 1)
+          return rowNode.data
+        }
+        else {
+          return false
         }
       })
-    ).subscribe(() => {})
+    ).subscribe((response) => {
+      if(!response) return;
+
+      this.setLocalStorage(response)
+    })
   }
+
+  setLocalStorage = rowData => {
+    let data: any = this.getLocalStorage()
+    let obj = {
+      username: this.username,
+    }
+    if(rowData && rowData.id) {
+      obj[`${rowData.id}`] = rowData
+      if(data.username === this.username){
+        obj = Object.assign(data, obj)
+      }
+    }
+    console.log(obj)
+    window.localStorage.setItem("mkdd--userData", JSON.stringify(obj))
+  }
+
+  getLocalStorage = () => {return JSON.parse(window.localStorage.getItem("mkdd--userData")) || {}}
+
+  getUsername = () => this.username
 
   flat = arr => {
     let out = []
