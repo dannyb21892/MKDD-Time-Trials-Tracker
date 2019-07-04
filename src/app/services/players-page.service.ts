@@ -13,13 +13,19 @@ export class PlayersPageService implements OnInit{
   private standardsURL: string = "https://www.mariokart64.com/mkdd/standardc.php"
   private usersURL: string = "https://www.mariokart64.com/mkdd/profile.php"
   private wrsURL: string = "https://www.mariokart64.com/mkdd/wrc.php"
+  private leaderboardURL: string = "https://www.mariokart64.com/mkdd/coursec.php?cid="
 
-  userList: any = {}
-  courseNamesAbbv = []
-  courseNames = []
-  wrs = []
+  userList: any = {};
+  courseNamesAbbv = [];
+  courseNames = [];
+  wrs = [];
+  leaderboards = [];
 
-  constructor(private http: HttpClient ) { }
+  constructor(private http: HttpClient) {
+    for(let i=0; i<32; i++){
+      this.leaderboards.push([])
+    }
+  }
 
   ngOnInit() {}
 
@@ -231,10 +237,50 @@ export class PlayersPageService implements OnInit{
     )
   }
 
+  getRank = (courseId, time, rowNode) => {
+    if(this.leaderboards[courseId].length){
+      rowNode.setDataValue("rank", this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(time)) + 1)
+    }
+    else {
+      this.getLeaderboard(courseId, rowNode, time)
+    }
+  }
+
+  getLeaderboard = (courseId, rowNode, time, start = 1, recursive = true) => {
+    let address = this.corsAnywhere + this.leaderboardURL + courseId + (start > 1 ? "&start=" + start : "")
+    this.http.get(address, {responseType: 'text'}).pipe(
+      map((res: any) => {
+        let leaderboardSize = Number(res.split("Showing results")[1].split(" / ")[1].split("</b>")[0])
+        let timeFinder = /[0-9]?\'?[0-9]?[0-9]\"[0-9][0-9]?[0-9]?/g
+        let times = [...res.matchAll(timeFinder)].map(x => x[0])
+        this.leaderboards[courseId] = [...this.leaderboards[courseId], ...times]
+        if(recursive){
+          for(let start = 101; start <= leaderboardSize; start=start+100){
+            this.getLeaderboard(courseId, rowNode, time, start, false)
+          }
+        }
+        else if(this.leaderboards[courseId].length === leaderboardSize){
+          this.leaderboards[courseId].sort((a,b) => this.timeConverter(a) - this.timeConverter(b))
+          console.log(this.leaderboards[courseId])
+          rowNode.setDataValue("rank", this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(time)) + 1)
+        }
+      })
+    ).subscribe(() => {})
+  }
+
   flat = arr => {
     let out = []
     arr.forEach(a => out = [...out, ...a])
     return out
+  }
+
+  timeConverter = (time) => {
+    let minutes = time.includes("'") ? Number(time.split("'")[0]) : 0
+    let seconds = Number((time.includes("'") ? time.split("'")[1] : time).split('"')[0])
+    let milliseconds: any = time.split('"')[1]
+    milliseconds = Number(milliseconds + "0".repeat(3 - milliseconds.length))
+    let value: any = minutes*60 + seconds + milliseconds/1000
+    return value
   }
 
 

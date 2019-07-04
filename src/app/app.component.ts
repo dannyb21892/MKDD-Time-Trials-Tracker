@@ -17,6 +17,7 @@ export class AppComponent implements OnInit{
 
   username: string = "";
   lastValidUsername: string = ""
+  syncDisabled: boolean = true;
 
   @ViewChild("nameField", {static: false})
   nameField: ElementRef
@@ -46,8 +47,19 @@ export class AppComponent implements OnInit{
   getUserData = () => {
     console.log(this.username)
     this.pps.getUserData(this.username).subscribe(
-      (data) => {if(Object.keys(data).length) this.userData = data},
-      (error) => console.log(error)
+      (data) => {
+        if(Object.keys(data).length){
+          this.userData = data;
+          this.syncDisabled = false
+        } else {
+          this.userData = {};
+          this.syncDisabled = false;
+          this.username = "";
+        }
+      },
+      (error) => {
+        console.log("hi", error)
+      }
     )
     this.nameField.nativeElement.removeEventListener("keypress", this.onEnter)
   }
@@ -56,8 +68,11 @@ export class AppComponent implements OnInit{
     this.nameField.nativeElement.addEventListener("keypress", this.onEnter)
   }
 
+  syncData = () => {
+
+  }
+
   onEnter = key => {
-    console.log(key)
     if(key.key === "Enter"){
       this.getUserData()
     }

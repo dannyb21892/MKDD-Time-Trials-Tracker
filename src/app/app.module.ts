@@ -8,15 +8,18 @@ import { HttpClientModule } from '@angular/common/http';
 //libraries
 import { AgGridModule } from 'ag-grid-angular';
 import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 //components
 import { AppComponent } from './app.component';
 import { StandardsGrid } from './components/standards-grid.component'
+import { CellEditorComponent } from './components/cell-editor.component'
 
 @NgModule({
   declarations: [
     AppComponent,
-    StandardsGrid
+    StandardsGrid,
+    CellEditorComponent
   ],
   imports: [
     BrowserModule,
@@ -24,9 +27,11 @@ import { StandardsGrid } from './components/standards-grid.component'
     FormsModule,
     HttpClientModule,
     AgGridModule.withComponents([]),
-    MatInputModule
+    MatInputModule,
+    MatButtonModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [CellEditorComponent]
 })
 export class AppModule { }

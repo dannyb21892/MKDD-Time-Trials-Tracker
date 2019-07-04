@@ -1,4 +1,6 @@
 import { Component, OnInit, OnChanges, SimpleChanges, Input } from '@angular/core';
+import { CellEditorComponent } from "./cell-editor.component"
+import { PlayersPageService } from 'src/app/services/players-page.service';
 
 @Component({
   selector: 'standards-grid',
@@ -15,15 +17,19 @@ export class StandardsGrid implements OnInit, OnChanges {
   rowData = [];
   points = {};
 
-  constructor() {}
+  gridApi;
+  gridColumnApi;
+
+  constructor(private pps: PlayersPageService) {}
 
   ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges) {
     Object.keys(changes).forEach(key => {
-      this[key] = changes[key].currentValue
+      this[key] = Object.assign({}, changes[key].currentValue)
       console.log(changes)
-      if(key === "standards" && this.wrs && this.userData){
+      if(key === "standards" && this.wrs && this.userData && Object.keys(this.userData).length){
+        console.log("setting standards from onchanges")
         this.setStandards()
       } else if(key !== "standards"){
         this[`set${this.capitalize(key)}`]()
@@ -43,17 +49,19 @@ export class StandardsGrid implements OnInit, OnChanges {
       headerName: "Course",
       field: "course",
       rowSpan: function(params) {
-        return 2;
+        return params.data.course === "" ? 1 : 2
       },
       width: 65,
       cellClassRules: { "cell-span": "value.length > 0", "cell-course-border": "value !== 'LC'", "cell-data-border": "true"},
-      cellStyle: {"text-align": 'center', 'line-height': 3.5, "font-size": '16px'}
+      cellStyle: {"text-align": 'center', 'line-height': 3.5, "font-size": '16px'},
+      pinned: 'left',
     },{
       headerName: "Trial",
       field: "trial",
       width: 60,
       cellStyle: {"text-align": 'center'},
-      cellClassRules: { "cell-data-border": "true"}
+      cellClassRules: { "cell-data-border": "true"},
+      pinned: 'left',
     },{
       headerName: "User Data",
       children: [{
@@ -61,37 +69,50 @@ export class StandardsGrid implements OnInit, OnChanges {
         field: "time",
         width: 80,
         cellStyle: {"text-align": 'center'},
-        cellClassRules: { "cell-data-border": "true"}
+        cellClassRules: { "cell-data-border": "true"},
+        cellEditorFramework: CellEditorComponent,
+        editable: true,
+        pinned: 'left',
       },{
         headerName: "Points",
         field: "points",
+        colId: "points",
         width: 60,
         cellStyle: {"text-align": 'center'},
-        cellClassRules: { "cell-data-border": "true"}
+        cellClassRules: { "cell-data-border": "true"},
+        pinned: 'left',
       },{
         headerName: "Standard",
         field: "std",
+        colId: "std",
         width: 80,
         cellStyle: {"text-align": 'center'},
-        cellClassRules: { "cell-data-border": "true"}
+        cellClassRules: { "cell-data-border": "true"},
+        pinned: 'left',
       },{
         headerName: "Rank",
         field: "rank",
+        colId: "rank",
         width: 60,
         cellStyle: {"text-align": 'center'},
-        cellClassRules: { "cell-data-border": "true"}
+        cellClassRules: { "cell-data-border": "true"},
+        pinned: 'left',
       },{
         headerName: "PRSR",
         field: "prsr",
+        colId: "prsr",
         width: 60,
         cellStyle: {"text-align": 'center'},
-        cellClassRules: { "cell-data-border": "true"}
+        cellClassRules: { "cell-data-border": "true"},
+        pinned: 'left',
       },{
         headerName: "Date",
         field: "date",
+        colId: "date",
         width: 100,
         cellStyle: {"text-align": 'center'},
-        cellClassRules: { "cell-data-border": "true"}
+        cellClassRules: { "cell-data-border": "true"},
+        pinned: 'left',
       }]
     }]
 
@@ -130,10 +151,12 @@ export class StandardsGrid implements OnInit, OnChanges {
 
     this.standards.courses.forEach(course => {
       let row1 = {
+        id: course + "3",
         course: course,
         trial: "3-lap",
       }
       let row2 = {
+        id: course + "f",
         course: "",
         trial: "f-lap",
       }
@@ -151,11 +174,10 @@ export class StandardsGrid implements OnInit, OnChanges {
       this.rowData.push(row1)
       this.rowData.push(row2)
     })
-
   }
 
   setWrs = () => {
-    if(this.userData) this.setStandards()
+    if(this.userData && Object.keys(this.userData).length) this.setStandards()
   }
 
   wrSelector = params => {
@@ -184,7 +206,30 @@ export class StandardsGrid implements OnInit, OnChanges {
   }
 
   setUserData = () => {
-    if(this.wrs) this.setStandards()
+    if(this.wrs && Object.keys(this.userData).length) this.setStandards()
+  }
+
+  onCellChanged = event => {
+    if(event.colDef.field !== "time") return;
+    let course = event.data.course;
+    let trial = event.data.trial === "3-lap" ? "threeLap" : "fastLap"
+    let rowNode = event.node;
+    rowNode.setDataValue("date", this.formatDate(new Date()))
+    let standardAndPoints = this.getStandardAndPointsFromTime(event.newValue, rowNode)
+    rowNode.setDataValue("std", standardAndPoints.standard)
+    rowNode.setDataValue("points", standardAndPoints.points)
+    rowNode.setDataValue("prsr", Math.round(10000 * this.timeConverter(this.wrs[event.rowIndex]) / this.timeConverter(event.newValue)) / 100)
+    this.pps.getRank(event.rowIndex, event.newValue, rowNode)
+  }
+
+  getStandardAndPointsFromTime = (time, row) => {
+    let value = this.timeConverter(time)
+    let values = Object.entries(row.data)
+      .filter(keyVal => !["course", "date", "id", "points", "prsr", "rank", "std", "time", "trial", "value"].includes(keyVal[0]))
+      .map(keyVal => {return [keyVal[0], this.timeConverter(keyVal[1])]})
+      .sort((a,b) => a[1] - b[1])
+    let pair = values.find(pair => pair[1] >= value)
+    return {points: this.points[pair[0]], standard: pair[0]}
   }
 
   capitalize = (s: string) => s[0].toUpperCase() + s.slice(1)
@@ -220,5 +265,16 @@ export class StandardsGrid implements OnInit, OnChanges {
     })
     return out
   }
+
+  formatDate = date => `${date.getFullYear()}-${(date.getMonth() < 9 ? "0" : "") + (date.getMonth()+1)}-${(date.getDay() < 10 ? "0" : "") + date.getDay()}`
+
+  onGridReady(params) {
+    this.gridApi = params.api;
+    this.gridColumnApi = params.columnApi;
+  }
+
+  getRowNodeId = function(data) {
+    return data.id;
+  };
 
 }
