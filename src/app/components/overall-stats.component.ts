@@ -12,6 +12,13 @@ export class OverallStats implements OnInit, OnChanges {
 
   rowData = [];
 
+  nameMap = {
+    Expert: "Exp",
+    Advanced: "Adv",
+    Intermediate: "Int",
+    Beginner: "Beg"
+  }
+
   gridApi;
   gridColumnApi;
 
@@ -24,6 +31,7 @@ export class OverallStats implements OnInit, OnChanges {
   ngOnChanges(params) {
     if(this.parentRowData && Object.keys(this.pointMap).length)
       this.calculateStats()
+
   }
 
   calculateStats = () => {
@@ -32,8 +40,6 @@ export class OverallStats implements OnInit, OnChanges {
     let row = {}
 
     let nonStdCols = ["id", "course", "time", "date", "prsr", "rank", "std", "points", "trial", "value"]
-
-    console.log(this.parentRowData)
 
     let points = this.parentRowData.map(r => r.points)
     row["points"] = points.length ? Math.round(100*points.reduce((a,b) => a + Number(b), 0)/points.length)/100 : "N/A"
@@ -65,10 +71,13 @@ export class OverallStats implements OnInit, OnChanges {
       }).filter(x => x.diff > 0 || x.row["std"] === "God+10").sort((a,b) => a.diff-b.diff)[0]
     })
     filtered.forEach(f => {
-      f.diff = f.diff / (f.row["std"] !== "God+10" ? this.timeConverter(f.row[f.row["std"]]) - this.timeConverter(f.row[f.col]) : this.timeConverter(f.row["God+10"]))
+      let upperColName = (f.row["std"].includes(" ") && this.nameMap[f.row["std"].slice(0,-2)]) ? this.nameMap[f.row["std"].slice(0,-2)] + f.row["std"].slice(-2) : f.row["std"]
+      f.diff = f.diff / (f.row["std"] !== "God+10" ? this.timeConverter(f.row[upperColName]) - this.timeConverter(f.row[f.col]) : this.timeConverter(f.row["God+10"]))
     })
+    console.log(filtered)
     let finalBestStdRow = filtered.find(f => f.diff === Math.min(...filtered.map(x => x.diff))).row
-    row["best-std"] = finalBestStdRow["id"].slice(0,-1) + " " + finalBestStdRow["id"].slice(-1) + "-lap (" + finalBestStdRow["std"] + ")"
+    let finalBestColName = (finalBestStdRow["std"].includes(" ") && this.nameMap[finalBestStdRow["std"].slice(0,-2)]) ? this.nameMap[finalBestStdRow["std"].slice(0,-2)] + finalBestStdRow["std"].slice(-2) : finalBestStdRow["std"]
+    row["best-std"] = finalBestStdRow["id"].slice(0,-1) + " " + finalBestStdRow["id"].slice(-1) + "-lap (" + finalBestColName + ")"
 
     let worstPrsr = Math.min(...this.parentRowData.map(r => Number(r.prsr.slice(0,-1))))
     let worstPrsrRow = this.parentRowData.find(r => Number(r.prsr.slice(0,-1)) === worstPrsr)
@@ -87,10 +96,12 @@ export class OverallStats implements OnInit, OnChanges {
       }).filter(x => x.diff > 0 || x.row["std"] === "God+10").sort((a,b) => a.diff-b.diff)[0]
     })
     filtered2.forEach(f => {
-      f.diff = f.diff / (f.row["std"] !== "God+10" ? this.timeConverter(f.row[f.row["std"]]) - this.timeConverter(f.row[f.col]) : this.timeConverter(f.row["God+10"]))
+      let upperColName = (f.row["std"].includes(" ") && this.nameMap[f.row["std"].slice(0,-2)]) ? this.nameMap[f.row["std"].slice(0,-2)] + f.row["std"].slice(-2) : f.row["std"]
+      f.diff = f.diff / (f.row["std"] !== "God+10" ? this.timeConverter(f.row[upperColName]) - this.timeConverter(f.row[f.col]) : this.timeConverter(f.row["God+10"]))
     })
     let finalWorstStdRow = filtered2.find(f => f.diff === Math.max(...filtered2.map(x => x.diff))).row
-    row["worst-std"] = finalWorstStdRow["id"].slice(0,-1) + " " + finalWorstStdRow["id"].slice(-1) + "-lap (" + finalWorstStdRow["std"] + ")"
+    let finalWorstColName = (finalWorstStdRow["std"].includes(" ") && this.nameMap[finalWorstStdRow["std"].slice(0,-2)]) ? this.nameMap[finalWorstStdRow["std"].slice(0,-2)] + finalWorstStdRow["std"].slice(-2) : finalWorstStdRow["std"]
+    row["worst-std"] = finalWorstStdRow["id"].slice(0,-1) + " " + finalWorstStdRow["id"].slice(-1) + "-lap (" + finalWorstColName + ")"
 
     let easiestToRank = filtered2.find(f => f.diff === Math.min(...filtered2.map(x => x.diff)))
     row["goal"] = easiestToRank.row["id"].slice(0,-1) + " " + easiestToRank.row["id"].slice(-1) + "-lap (" + easiestToRank.col + ")"

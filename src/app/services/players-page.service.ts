@@ -9,7 +9,7 @@ import { of } from 'rxjs'
 })
 export class PlayersPageService implements OnInit{
 
-  private corsAnywhere: string = "https://cors-anywhere.herokuapp.com/"
+  private corsAnywhere: string = "https://aqueous-anchorage-29772.herokuapp.com/"// "https://cors-anywhere.herokuapp.com/"//
   private standardsURL: string = "https://www.mariokart64.com/mkdd/standardc.php"
   private usersURL: string = "https://www.mariokart64.com/mkdd/profile.php"
   private wrsURL: string = "https://www.mariokart64.com/mkdd/wrc.php"
@@ -66,19 +66,18 @@ export class PlayersPageService implements OnInit{
         let timeFinder = /[0-9]?\'?[0-9]?[0-9]\"[0-9][0-9]?[0-9]?/g
         let unorderedTimes = [...res.matchAll(timeFinder)].map(x => x[0])
         let times = []
-        for(let trial = 0; trial <= 32; trial++){
+        for(let trial = 0; trial < 32; trial++){
           stds.forEach((group, gi) => {
             let offset = gi === stds.length - 1 ? trial : 0
             let passedIndices = stds.slice(0, gi).reduce((a,b) => a + b.length, 0)
             let additional = unorderedTimes.slice(32*passedIndices + trial*group.length - offset, 32*passedIndices + (trial + 1)*group.length - offset)
             if(gi === stds.length - 1){
-              additional = additional.slice(0,-1) //cut off newbie time
+              if(trial < 31) additional = additional.slice(0,-1) //cut off newbie time
               additional.push(`9'59"999`)
             }
             times = [...times, ...additional]
           })
         }
-
         let output = {}
         let numStandards = stds.reduce((a,b) => a + b.length, 0)
         courseNames.forEach((course, ci) => {
@@ -113,7 +112,6 @@ export class PlayersPageService implements OnInit{
             })
           })
         })
-        console.log(output)
         return {courses: courseNames, standards: output}
       })
     )
@@ -145,7 +143,6 @@ export class PlayersPageService implements OnInit{
           this.parseUserData(username, clearLocal)
         }
         else {
-          console.log("username not found in list")
         }
       })
     }
@@ -153,7 +150,6 @@ export class PlayersPageService implements OnInit{
       return this.parseUserData(username, clearLocal)
     }
     else {
-      console.log("username not found in list")
       return of({})
     }
   }
@@ -226,7 +222,7 @@ export class PlayersPageService implements OnInit{
                 prsr: Number(threeLapStats[5].slice(2,-1)),
                 date: threeLapStats.slice(-1)[0].slice(2,-1).split("'")[0],
                 time: threeLapRow.split(";'>")[1].split("<")[0],
-                points: Number(threeLapRow.split(" / ")[0].slice(-3).split(">")[1])
+                points: Number(threeLapRow.split(" / ")[0].slice(-6).split(">")[1])
               } : null,
               fastLap: fastLapStats ? {
                 value: Number(fastLapStats[1]),
@@ -235,7 +231,7 @@ export class PlayersPageService implements OnInit{
                 prsr: Number(fastLapStats[5].slice(2,-1)),
                 date: fastLapStats.slice(-1)[0].slice(2,-1).split("'")[0],
                 time: fastLapRow.split(";'>")[1].split("<")[0],
-                points: Number(fastLapRow.split(" / ")[0].slice(-3).split(">")[1])
+                points: Number(fastLapRow.split(" / ")[0].slice(-6).split(">")[1])
               } : null
             }
           }
@@ -310,7 +306,6 @@ export class PlayersPageService implements OnInit{
         obj = Object.assign(data, obj)
       }
     }
-    console.log(obj)
     window.localStorage.setItem("mkdd--userData", JSON.stringify(obj))
   }
 

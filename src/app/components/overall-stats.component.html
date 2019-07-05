@@ -1,13 +1,11 @@
 <ag-grid-angular
-    style="width: 1462px; height: 94px; "
+    style="width: 1462px; height: 100%;"
     class="ag-theme-balham-dark"
     [rowData]="rowData"
     [columnDefs]="columnDefs"
     [suppressRowTransform]="true"
     [suppressMovableColumns]="true"
-    [getRowNodeId]="getRowNodeId"
     [suppressNoRowsOverlay]="true"
-    (cellValueChanged)="onCellChanged($event)"
     (gridReady)="onGridReady($event)"
     >
 </ag-grid-angular>

@@ -1,16 +1,17 @@
-<ag-grid-angular
-    style="width: 98%; height: 758px; margin-left: 1%;"
+<div style="height: 100%; ">
+  <ag-grid-angular
+    style="width: 98%; height: 87%; margin-left: 1%;"
     class="ag-theme-balham-dark"
     [rowData]="rowData"
     [columnDefs]="columnDefs"
     [suppressRowTransform]="true"
-    [suppressMovableColumns]="true"
     [getRowNodeId]="getRowNodeId"
     (cellValueChanged)="onCellChanged($event)"
     (gridReady)="onGridReady($event)"
     >
-</ag-grid-angular>
-<br/>
-<div class="footer-container">
-  <overall-stats [parentRowData]="rowData" [pointMap]="points"></overall-stats>
+  </ag-grid-angular>
+  <br/>
+  <div class="footer-container">
+    <overall-stats [parentRowData]="rowData" [pointMap]="points"></overall-stats>
+  </div>
 </div>

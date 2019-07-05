@@ -8,6 +8,11 @@ body {
   background-color: black;
   font-family: "Segoe UI","Helvetica Neue", sans-serif;
   margin-bottom: 0px;
+  height: 91%;
+}
+
+html {
+  height: 100%;
 }
 
 .control-container {
@@ -16,6 +21,7 @@ body {
   justify-content: space-between;
   width: 98%;
   margin-left: 1%;
+  height: 6.5%;
 }
 
 .footer-container {
@@ -24,6 +30,7 @@ body {
   justify-content: space-between;
   width: 98%;
   margin-left: 1%;
+  height: 11%;
 }
 
 .cell-span {
@@ -42,6 +49,12 @@ body {
   border-right-color: #5c5c5c !important;
 }
 
+.cell-data-thick-border {
+  border-left-style: solid !important;
+  border-left-width: 2px !important;
+  border-left-color: white !important;
+}
+
 .wr-time {
   background-color: #ffc500;
   color: black;
@@ -51,8 +64,16 @@ body {
   background-color: #4287f5;
 }
 
+.pr-time.wr-time {
+  background: linear-gradient(90deg, #ffc500 50%, #4287f5 50%);
+}
+
 .ag-header-group-cell-label, .ag-header-cell-label {
   justify-content: center !important;
+}
+
+.ag-root.ag-layout-normal {
+    height: auto !important;
 }
 
 .nameField {

@@ -35,9 +35,7 @@ export class StandardsGrid implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     Object.keys(changes).forEach(key => {
       this[key] = Object.assign({}, changes[key].currentValue)
-      console.log(changes)
       if(key === "standards" && this.wrs && this.userData && Object.keys(this.userData).length){
-        console.log("setting standards from onchanges")
         this.setStandards()
       } else if(key !== "standards"){
         this[`set${this.capitalize(key)}`]()
@@ -69,11 +67,13 @@ export class StandardsGrid implements OnInit, OnChanges {
 
       let colDef = {
         headerName: h,
+        suppressMovable: true,
         children: children.map(c => {
           return {
             headerName: c + " (" + this.points[c] + ")",
             field: c,
             width: 100,
+            suppressMovable: true,
             cellStyle: {"text-align": 'center'},
             cellClassRules: { "cell-data-border": "true",
                               "wr-time": (params) => {return this.wrSelector(params)},
@@ -173,7 +173,7 @@ export class StandardsGrid implements OnInit, OnChanges {
     rowNode.setDataValue("date", this.formatDate(new Date()))
     let standardAndPoints = this.getStandardAndPointsFromTime(event.newValue, rowNode)
     rowNode.setDataValue("std", standardAndPoints.standard)
-    rowNode.setDataValue("points", Math.round(standardAndPoints.points))
+    rowNode.setDataValue("points", standardAndPoints.points >= 0 ? Math.round(standardAndPoints.points) : Number(standardAndPoints.points))
     rowNode.setDataValue("prsr", (Math.round(10000 * this.timeConverter(this.wrs[event.rowIndex]) / this.timeConverter(event.newValue)) / 100) + "%")
     this.pps.getRank(event.rowIndex, event.newValue, rowNode)
     this.rowData = [...this.rowData]
@@ -251,6 +251,7 @@ export class StandardsGrid implements OnInit, OnChanges {
     cellClassRules: { "cell-span": "value.length > 0", "cell-course-border": "value !== 'LC'", "cell-data-border": "true"},
     cellStyle: {"text-align": 'center', 'line-height': 3.5, "font-size": '16px'},
     pinned: 'left',
+    suppressMovable: true
     //lockPosition: true
   },{
     headerName: "Trial",
@@ -259,10 +260,13 @@ export class StandardsGrid implements OnInit, OnChanges {
     cellStyle: {"background-color": "#1c1f20", "text-align": 'center'},
     cellClassRules: { "cell-data-border": "true"},
     pinned: 'left',
+    suppressMovable: true
     //lockPosition: true
   },{
     headerName: "User Data",
     marryChildren: true,
+    suppressMovable: true,
+    lockVisible: true,
     children: [{
       headerName: "PR",
       field: "time",
@@ -272,6 +276,8 @@ export class StandardsGrid implements OnInit, OnChanges {
       cellEditorFramework: CellEditorComponent,
       editable: true,
       pinned: 'left',
+      lockPinned: true,
+      lockVisible: true,
     },{
       headerName: "Points",
       field: "points",
@@ -280,6 +286,8 @@ export class StandardsGrid implements OnInit, OnChanges {
       cellStyle: {"text-align": 'center'},
       cellClassRules: { "cell-data-border": "true"},
       pinned: 'left',
+      lockPinned: true,
+      lockVisible: true,
     },{
       headerName: "Standard",
       field: "std",
@@ -288,6 +296,8 @@ export class StandardsGrid implements OnInit, OnChanges {
       cellStyle: {"text-align": 'center'},
       cellClassRules: { "cell-data-border": "true"},
       pinned: 'left',
+      lockPinned: true,
+      lockVisible: true,
     },{
       headerName: "Rank",
       field: "rank",
@@ -296,6 +306,8 @@ export class StandardsGrid implements OnInit, OnChanges {
       cellStyle: {"text-align": 'center'},
       cellClassRules: { "cell-data-border": "true"},
       pinned: 'left',
+      lockPinned: true,
+      lockVisible: true,
     },{
       headerName: "PRSR",
       field: "prsr",
@@ -304,6 +316,8 @@ export class StandardsGrid implements OnInit, OnChanges {
       cellStyle: {"text-align": 'center'},
       cellClassRules: { "cell-data-border": "true"},
       pinned: 'left',
+      lockPinned: true,
+      lockVisible: true,
     },{
       headerName: "Date",
       field: "date",
@@ -312,6 +326,8 @@ export class StandardsGrid implements OnInit, OnChanges {
       cellStyle: {"text-align": 'center'},
       cellClassRules: { "cell-data-border": "true"},
       pinned: 'left',
+      lockPinned: true,
+      lockVisible: true,
     }]
   }]
 }

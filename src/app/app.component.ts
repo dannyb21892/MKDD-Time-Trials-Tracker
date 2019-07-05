@@ -28,7 +28,6 @@ export class AppComponent implements OnInit{
   ngOnInit() {
     this.pps.getUserList().subscribe(() => {
       let localStorage = this.pps.getLocalStorage()
-      console.log(localStorage)
       if(localStorage && localStorage.username){
         this.username = localStorage.username
         this.pps.getUserData(localStorage.username).subscribe((data) => {
@@ -42,7 +41,6 @@ export class AppComponent implements OnInit{
         this.standards = data
       },
       error => {
-        console.log(error)
       }
     )
     this.pps.getWRs().subscribe(
@@ -50,7 +48,6 @@ export class AppComponent implements OnInit{
         this.wrs = data
       },
       error => {
-        console.log(error)
       }
     )
   }
@@ -60,7 +57,6 @@ export class AppComponent implements OnInit{
       (data) => {
         if(Object.keys(data).length){
           this.userData = data;
-          console.log(this.userData)
           this.syncDisabled = false
         } else {
           this.userData = {};
@@ -69,7 +65,6 @@ export class AppComponent implements OnInit{
         }
       },
       (error) => {
-        console.log("hi", error)
       }
     )
     this.nameField.nativeElement.removeEventListener("keypress", this.onEnter)
@@ -92,6 +87,6 @@ export class AppComponent implements OnInit{
   }
 
   showFAQ = () => {
-    let dialogRef = this.dialog.open(FAQComponent, {width: '90%', maxWidth: "100%"});
+    let dialogRef = this.dialog.open(FAQComponent, {width: '90%', maxWidth: "100%", maxHeight: "95%", height: "95%"});
   }
 }
