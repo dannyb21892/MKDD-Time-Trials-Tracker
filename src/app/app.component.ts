@@ -88,4 +88,8 @@ export class AppComponent implements OnInit{
       this.getUserData()
     }
   }
+
+  showFAQ = () => {
+    console.log("hi")
+  }
 }
