@@ -6,6 +6,8 @@
 
 body {
   background-color: black;
+  font-family: "Segoe UI","Helvetica Neue", sans-serif;
+  margin-bottom: 0px;
 }
 
 .control-container {
@@ -61,4 +63,8 @@ body {
 }
 .mat-input-element{
   color: white !important;
+}
+
+.popup {
+  font-size: 14px;
 }

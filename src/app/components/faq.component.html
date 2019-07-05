@@ -1,0 +1,82 @@
+<div class="popup">
+  <h3><u>What is this?</u></h3>
+  <p>
+    This is a web application written in Angular for Mario Kart Double Dash time
+    trials speedrunners. All development was done by Daniel Baamonde, AKA dannyb21892 on
+    <a href="https://www.twitch.tv/dannyb21892">twitch</a>, <a href="https://twitter.com/dannyb21892">twitter</a>,
+    and <a href="https://discord.gg/wATK4Me">discord</a>. Feel free to reach out on any of those 
+    platforms if this FAQ does not answer your questions.
+  </p>
+  <h3><u>How do I use it?</u></h3>
+  <p>
+    The first thing you need is a profile on the
+    <a href="https://www.mariokart64.com/mkdd/">MKDD Player's page</a>. If you're
+    already here, you probably have one already. Type your name as it appears on
+    the player's page leaderboards into the textbox at the top of the screen.
+    Then either click outside the textbox, press enter, or click the "Sync to Player's Page"
+    button to load in your times. Doing this will grab all of your PRs, as well as the
+    current standards, rankings, world records, and other relevant stats.
+  </p>
+  <p>
+    The main grid should now be populated with all of your latest player's page data under
+    the "User Data" column group. On the standards section of the grid, gold highlighted
+    times represent the standard of the current World Record, and blue highlighted times
+    represent the standard of your current PR.
+  </p>
+  <p>
+    The main function of this app is the ability to edit your times in place, and have
+    all of the relevant stats update as well. Since the player's page only updates about
+    once per week, you can nicely keep track of all your progress since the last update
+    this way. To update a time, simply double click in the cell in the "PR" column near the
+    left of the grid which corresponds to the time trial you have improved on. Type a valid
+    time, then click enter to lock it in. A valid time is of the form x'yy"zzz, or x"zzz,
+    where x can not be 0 and zzz can also be zz or just z. The grid will not accept
+    an incorrect format and will revert to the last valid value it contained. When the
+    time updates, your blue cell marker will also update if you improved a standard, and
+    all relevant stats in the same row will also update.
+  </p>
+  <p>
+    Note that this app does not use any log in system, and just relies on the name you
+    type into the input field on top. However the app does store a small data object in
+    your browser to remember the state of the app on next launch, so you will not lose any
+    times that you entered and are also not yet updated on the player's page. If at any
+    time you DO want to remove any times that you have updated yourself, and re-sync your
+    data to only what is shown on your player's page profile, just click the "Sync to Player's Page"
+    button once again. Note also that if you ever type in someone else's name, that data
+    will overwrite whatever you had saved for the name you were using previously.
+  </p>
+  <h3><u>What is the information on the lower grid?</u></h3>
+  <p>
+    The lower grid shows several statistics about your performance as a whole. Here is an explanation of
+    those which might not already be self explanatory:
+  </p>
+  <h4>Overall Standard</h4>
+  <p>
+    Chooses the standard that has the smallest point value which is also strictly larger than your average points.
+    For example, if your average point value is in the range 12 ≤ x ≤ 12.99, your overall standard is the 13 point
+    Hero C. In other words your average points have to actually beat a standard's point value to achieve the overall standard.
+  </p>
+  <h4>Best Race By Standard</h4>
+  <p>
+    In a case where one race is your highest standard, that one will appear here. However, it is common to have
+    several races tie for your highest standard. In this case, this field will show the race which is tied for the
+    highest standard and also the furthest relatively from the previous standard. For example, you have two races that tie for your
+    highest standard: a 1'17"5 Intermediate B Peach Beach 3 lap time, and a 1'10"9 Intermediate B Baby Park 3 lap time.
+    The surrounding standard cutoffs for Peach Beach are 1'18"0 and 1'17"0, and so you are exactly 50% of the way
+    to the higher standard. The surrounding standard cutoffs for Baby Park are 1'11"0 and 1'10"5, and so you area
+    only 20% of the way to the higher standard. Therefore the Peach Beach Intermediate B 3-lap is your best race by standard.
+  </p>
+  <h4>Worst Race By Standard</h4>
+  <p>
+    Basically the same as the above with the opposite logic for tied lowest standard. The race which is tied for the
+    lowest standard and also the furthest relatively from the next standard will appear in this field.
+  </p>
+  <h4>Suggested Next Goal</h4>
+  <p>
+    Similar to Worst Race By Standard. This field shows the race which is tied for the
+    lowest standard and also the furthest relatively from the previous standard. In other words, out of all the
+    races which have your lowest standard, this is the best one among them, and so should probably be easiest for you to
+    improve to the next standard. This logic doesnt exactly hold at very high levels, but should be a decent suggestion
+    for new and mid tier players.
+  </p>
+</div>

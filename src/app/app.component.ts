@@ -1,5 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { PlayersPageService } from 'src/app/services/players-page.service';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { FAQComponent } from './components/faq.component'
 
 @Component({
   selector: 'app-root',
@@ -9,7 +11,7 @@ import { PlayersPageService } from 'src/app/services/players-page.service';
 export class AppComponent implements OnInit{
   title = 'mkddttt';
 
-  constructor(private pps: PlayersPageService) {}
+  constructor(private pps: PlayersPageService, public dialog: MatDialog) {}
 
   userData: any;
   standards: any;
@@ -90,6 +92,6 @@ export class AppComponent implements OnInit{
   }
 
   showFAQ = () => {
-    console.log("hi")
+    let dialogRef = this.dialog.open(FAQComponent, {width: '90%', maxWidth: "100%"});
   }
 }

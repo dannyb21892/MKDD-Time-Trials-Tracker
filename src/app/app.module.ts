@@ -9,19 +9,22 @@ import { HttpClientModule } from '@angular/common/http';
 import { AgGridModule } from 'ag-grid-angular';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
 
 //components
 import { AppComponent } from './app.component';
 import { StandardsGrid } from './components/standards-grid.component'
 import { OverallStats } from './components/overall-stats.component'
 import { CellEditorComponent } from './components/cell-editor.component'
+import { FAQComponent } from './components/faq.component'
 
 @NgModule({
   declarations: [
     AppComponent,
     StandardsGrid,
     CellEditorComponent,
-    OverallStats
+    OverallStats,
+    FAQComponent
   ],
   imports: [
     BrowserModule,
@@ -30,10 +33,11 @@ import { CellEditorComponent } from './components/cell-editor.component'
     HttpClientModule,
     AgGridModule.withComponents([]),
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    MatDialogModule
   ],
   providers: [],
   bootstrap: [AppComponent],
-  entryComponents: [CellEditorComponent]
+  entryComponents: [CellEditorComponent, FAQComponent]
 })
 export class AppModule { }
