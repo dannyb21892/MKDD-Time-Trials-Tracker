@@ -35,6 +35,12 @@ export class AppComponent implements OnInit{
           this.syncDisabled = false
         })
       }
+      else {
+        this.pps.getUserData("").subscribe((data) => {
+          this.userData = data;
+          this.syncDisabled = false
+        })
+      }
     })
     this.pps.getStandards().subscribe(
       data => {
@@ -53,9 +59,11 @@ export class AppComponent implements OnInit{
   }
 
   getUserData = () => {
+    console.log(this.username)
     this.pps.getUserData(this.username, true).subscribe(
       (data) => {
         if(Object.keys(data).length){
+          console.log(data)
           this.userData = data;
           this.syncDisabled = false
         } else {

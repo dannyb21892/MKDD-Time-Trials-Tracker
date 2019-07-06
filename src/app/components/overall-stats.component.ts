@@ -74,7 +74,6 @@ export class OverallStats implements OnInit, OnChanges {
       let upperColName = (f.row["std"].includes(" ") && this.nameMap[f.row["std"].slice(0,-2)]) ? this.nameMap[f.row["std"].slice(0,-2)] + f.row["std"].slice(-2) : f.row["std"]
       f.diff = f.diff / (f.row["std"] !== "God+10" ? this.timeConverter(f.row[upperColName]) - this.timeConverter(f.row[f.col]) : this.timeConverter(f.row["God+10"]))
     })
-    console.log(filtered)
     let finalBestStdRow = filtered.find(f => f.diff === Math.min(...filtered.map(x => x.diff))).row
     let finalBestColName = (finalBestStdRow["std"].includes(" ") && this.nameMap[finalBestStdRow["std"].slice(0,-2)]) ? this.nameMap[finalBestStdRow["std"].slice(0,-2)] + finalBestStdRow["std"].slice(-2) : finalBestStdRow["std"]
     row["best-std"] = finalBestStdRow["id"].slice(0,-1) + " " + finalBestStdRow["id"].slice(-1) + "-lap (" + finalBestColName + ")"

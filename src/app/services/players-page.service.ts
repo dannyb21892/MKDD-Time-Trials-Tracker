@@ -9,7 +9,7 @@ import { of } from 'rxjs'
 })
 export class PlayersPageService implements OnInit{
 
-  private corsAnywhere: string = "https://aqueous-anchorage-29772.herokuapp.com/"// "https://cors-anywhere.herokuapp.com/"//
+  private corsAnywhere: string = "https://cors-anywhere.herokuapp.com/"//"https://aqueous-anchorage-29772.herokuapp.com/"//
   private standardsURL: string = "https://www.mariokart64.com/mkdd/standardc.php"
   private usersURL: string = "https://www.mariokart64.com/mkdd/profile.php"
   private wrsURL: string = "https://www.mariokart64.com/mkdd/wrc.php"
@@ -20,7 +20,7 @@ export class PlayersPageService implements OnInit{
   courseNames = [];
   wrs = [];
   leaderboards = [];
-  username: string;
+  username: string = "";
 
   constructor(private http: HttpClient) {
     for(let i=0; i<32; i++){
@@ -143,6 +143,7 @@ export class PlayersPageService implements OnInit{
           this.parseUserData(username, clearLocal)
         }
         else {
+          return this.getBlankTimes(username)
         }
       })
     }
@@ -150,8 +151,38 @@ export class PlayersPageService implements OnInit{
       return this.parseUserData(username, clearLocal)
     }
     else {
-      return of({})
+      return this.getBlankTimes(username)
     }
+  }
+
+  getBlankTimes = username => {
+    this.username = username
+    let loc = this.getLocalStorage()
+    if(loc.username !== username) this.setLocalStorage()
+    let userObj = {}
+    this.courseNamesAbbv.forEach(c => {
+      userObj[c] = {
+        threeLap: {
+          value: 599.99,
+          rank: 9999,
+          std: "Newbie",
+          prsr: 0,
+          date: this.formatDate(new Date()),
+          time: `9'59"99`,
+          points: 31
+        },
+        fastLap: {
+          value: 599.99,
+          rank: 9999,
+          std: "Newbie",
+          prsr: 0,
+          date: this.formatDate(new Date()),
+          time: `9'59"99`,
+          points: 31
+        }
+      }
+    })
+    return of(userObj)
   }
 
   parseUserData = (username, clearLocal=false) => {
@@ -281,7 +312,7 @@ export class PlayersPageService implements OnInit{
         }
         else if(this.leaderboards[courseId].length === leaderboardSize){
           this.leaderboards[courseId].sort((a,b) => this.timeConverter(a) - this.timeConverter(b))
-          rowNode.setDataValue("rank", this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(time)) + 1)
+          rowNode.setDataValue("rank", (this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(time)) + 1) || this.leaderboards[courseId].length + 1)
           return rowNode.data
         }
         else {
@@ -290,13 +321,14 @@ export class PlayersPageService implements OnInit{
       })
     ).subscribe((response) => {
       if(!response) return;
-
+      console.log(response)
       this.setLocalStorage(response)
     })
   }
 
-  setLocalStorage = rowData => {
+  setLocalStorage = (rowData = null) => {
     let data: any = this.getLocalStorage()
+    console.log(data)
     let obj = {
       username: this.username,
     }
@@ -306,6 +338,7 @@ export class PlayersPageService implements OnInit{
         obj = Object.assign(data, obj)
       }
     }
+    console.log(obj)
     window.localStorage.setItem("mkdd--userData", JSON.stringify(obj))
   }
 

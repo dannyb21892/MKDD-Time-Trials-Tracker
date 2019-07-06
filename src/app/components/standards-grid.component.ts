@@ -26,6 +26,13 @@ export class StandardsGrid implements OnInit, OnChanges {
 
   gridLoadedFirstTime = false;
 
+  nameMap = {
+    Expert: "Exp",
+    Advanced: "Adv",
+    Intermediate: "Int",
+    Beginner: "Beg"
+  }
+
   constructor(private pps: PlayersPageService) {}
 
   ngOnInit() {
@@ -90,6 +97,7 @@ export class StandardsGrid implements OnInit, OnChanges {
       let id2 = course + "f"
       let row1
       let row2
+      console.log(this.localUserData.username, this.username, id1, this.localUserData)
       if(this.localUserData.username === this.username && this.localUserData[id1]) {
         row1 = this.localUserData[id1]
       }
@@ -120,6 +128,10 @@ export class StandardsGrid implements OnInit, OnChanges {
     }
     row = Object.assign(row, this.userData[course][trial])
     row["prsr"] = row["prsr"] + "%"
+    row["std"] = row["std"].includes(" ") && this.nameMap[row["std"].slice(0,-2)] ? this.nameMap[row["std"].slice(0,-2)] + row["std"].slice(-2) : row["std"]
+    while(!Number(row["time"][0])){
+      row["time"] = row["time"].slice(1)
+    }
     allBuckets.forEach(b => {
       row[b] = this.standards.standards[course][trial][b].time
     })
@@ -155,6 +167,25 @@ export class StandardsGrid implements OnInit, OnChanges {
     return params.value === rowTimes[0][0]
   }
 
+  newPrFinder = params => {
+    let pr = this.timeConverter(params.data.time)
+    let course = params.data.id.slice(0,-1)
+    let trial = params.data.id.slice(-1) === "3" ? "threeLap" : "fastLap"
+    return this.timeConverter(this.userData[course][trial]["time"]) > pr
+  }
+
+  newPointsFinder = params => {
+    let course = params.data.id.slice(0,-1)
+    let trial = params.data.id.slice(-1) === "3" ? "threeLap" : "fastLap"
+    return Number(this.userData[course][trial]["points"]) > Number(params.data["points"])
+  }
+
+  newRankFinder = params => {
+    let course = params.data.id.slice(0,-1)
+    let trial = params.data.id.slice(-1) === "3" ? "threeLap" : "fastLap"
+    return Number(this.userData[course][trial]["rank"]) > Number(params.data["rank"])
+  }
+
   setUserData = () => {
     this.localUserData = this.pps.getLocalStorage();
     if(Object.keys(this.userData).length) {
@@ -171,7 +202,7 @@ export class StandardsGrid implements OnInit, OnChanges {
     let trial = event.data.trial === "3-lap" ? "threeLap" : "fastLap"
     let rowNode = event.node;
     rowNode.setDataValue("date", this.formatDate(new Date()))
-    let standardAndPoints = this.getStandardAndPointsFromTime(event.newValue, rowNode)
+    let standardAndPoints = this.getStandardAndPointsFromTime(event.newValue, rowNode.data)
     rowNode.setDataValue("std", standardAndPoints.standard)
     rowNode.setDataValue("points", standardAndPoints.points >= 0 ? Math.round(standardAndPoints.points) : Number(standardAndPoints.points))
     rowNode.setDataValue("prsr", (Math.round(10000 * this.timeConverter(this.wrs[event.rowIndex]) / this.timeConverter(event.newValue)) / 100) + "%")
@@ -181,7 +212,7 @@ export class StandardsGrid implements OnInit, OnChanges {
 
   getStandardAndPointsFromTime = (time, row) => {
     let value = this.timeConverter(time)
-    let values = Object.entries(row.data)
+    let values = Object.entries(row)
       .filter(keyVal => !["course", "date", "id", "points", "prsr", "rank", "std", "time", "trial", "value"].includes(keyVal[0]))
       .map(keyVal => {return [keyVal[0], this.timeConverter(keyVal[1])]})
       .sort((a,b) => a[1] - b[1])
@@ -272,7 +303,9 @@ export class StandardsGrid implements OnInit, OnChanges {
       field: "time",
       width: 80,
       cellStyle: {"text-align": 'center'},
-      cellClassRules: { "cell-data-border": "true"},
+      cellClassRules: { "cell-data-border": "true",
+                        "new-pr": (params) => {return this.newPrFinder(params)},
+                      },
       cellEditorFramework: CellEditorComponent,
       editable: true,
       pinned: 'left',
@@ -284,7 +317,9 @@ export class StandardsGrid implements OnInit, OnChanges {
       colId: "points",
       width: 60,
       cellStyle: {"text-align": 'center'},
-      cellClassRules: { "cell-data-border": "true"},
+      cellClassRules: { "cell-data-border": "true",
+                        "new-pr": (params) => {return this.newPointsFinder(params)},
+                      },
       pinned: 'left',
       lockPinned: true,
       lockVisible: true,
@@ -294,7 +329,9 @@ export class StandardsGrid implements OnInit, OnChanges {
       colId: "std",
       width: 110,
       cellStyle: {"text-align": 'center'},
-      cellClassRules: { "cell-data-border": "true"},
+      cellClassRules: { "cell-data-border": "true",
+                        "new-pr": (params) => {return this.newPointsFinder(params)},
+                      },
       pinned: 'left',
       lockPinned: true,
       lockVisible: true,
@@ -304,7 +341,9 @@ export class StandardsGrid implements OnInit, OnChanges {
       colId: "rank",
       width: 60,
       cellStyle: {"text-align": 'center'},
-      cellClassRules: { "cell-data-border": "true"},
+      cellClassRules: { "cell-data-border": "true",
+                        "new-pr": (params) => {return this.newRankFinder(params)}
+                      },
       pinned: 'left',
       lockPinned: true,
       lockVisible: true,
@@ -314,7 +353,9 @@ export class StandardsGrid implements OnInit, OnChanges {
       colId: "prsr",
       width: 65,
       cellStyle: {"text-align": 'center'},
-      cellClassRules: { "cell-data-border": "true"},
+      cellClassRules: { "cell-data-border": "true",
+                        "new-pr": (params) => {return this.newPrFinder(params)}
+                      },
       pinned: 'left',
       lockPinned: true,
       lockVisible: true,
@@ -324,7 +365,9 @@ export class StandardsGrid implements OnInit, OnChanges {
       colId: "date",
       width: 100,
       cellStyle: {"text-align": 'center'},
-      cellClassRules: { "cell-data-border": "true"},
+      cellClassRules: { "cell-data-border": "true",
+                        "new-pr": (params) => {return this.newPrFinder(params)}
+                      },
       pinned: 'left',
       lockPinned: true,
       lockVisible: true,
