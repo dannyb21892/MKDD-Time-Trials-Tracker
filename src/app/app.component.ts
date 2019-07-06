@@ -59,11 +59,9 @@ export class AppComponent implements OnInit{
   }
 
   getUserData = () => {
-    console.log(this.username)
     this.pps.getUserData(this.username, true).subscribe(
       (data) => {
         if(Object.keys(data).length){
-          console.log(data)
           this.userData = data;
           this.syncDisabled = false
         } else {

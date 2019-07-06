@@ -9,6 +9,7 @@ import { of } from 'rxjs'
 })
 export class PlayersPageService implements OnInit{
 
+  //use the cors anywhere link for local testing. use the aqueous-anchorage link when building for production
   private corsAnywhere: string = "https://cors-anywhere.herokuapp.com/"//"https://aqueous-anchorage-29772.herokuapp.com/"//
   private standardsURL: string = "https://www.mariokart64.com/mkdd/standardc.php"
   private usersURL: string = "https://www.mariokart64.com/mkdd/profile.php"
@@ -321,14 +322,12 @@ export class PlayersPageService implements OnInit{
       })
     ).subscribe((response) => {
       if(!response) return;
-      console.log(response)
       this.setLocalStorage(response)
     })
   }
 
   setLocalStorage = (rowData = null) => {
     let data: any = this.getLocalStorage()
-    console.log(data)
     let obj = {
       username: this.username,
     }
@@ -338,7 +337,6 @@ export class PlayersPageService implements OnInit{
         obj = Object.assign(data, obj)
       }
     }
-    console.log(obj)
     window.localStorage.setItem("mkdd--userData", JSON.stringify(obj))
   }
 

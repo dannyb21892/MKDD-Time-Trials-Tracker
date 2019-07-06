@@ -97,7 +97,6 @@ export class StandardsGrid implements OnInit, OnChanges {
       let id2 = course + "f"
       let row1
       let row2
-      console.log(this.localUserData.username, this.username, id1, this.localUserData)
       if(this.localUserData.username === this.username && this.localUserData[id1]) {
         row1 = this.localUserData[id1]
       }
