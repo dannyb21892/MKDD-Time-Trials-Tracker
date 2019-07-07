@@ -37,6 +37,8 @@ export class StandardsGrid implements OnInit, OnChanges {
 
   ngOnInit() {
     this.localUserData = this.pps.getLocalStorage();
+    let colVisPrefs = window.localStorage.getItem("mkdd--colVisPrefs") || []
+    this.defaultColDefs[2]["children"].forEach(c => c["hide"] = !colVisPrefs.includes(c["field"]))
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -253,7 +255,7 @@ export class StandardsGrid implements OnInit, OnChanges {
     return out
   }
 
-  formatDate = date => `${date.getFullYear()}-${(date.getMonth() < 9 ? "0" : "") + (date.getMonth()+1)}-${(date.getDay() < 10 ? "0" : "") + date.getDay()}`
+  formatDate = date => `${date.getFullYear()}-${(date.getMonth() < 9 ? "0" : "") + (date.getMonth()+1)}-${(date.getDay() < 10 ? "0" : "") + date.getDate()}`
 
   onGridReady(params) {
     this.gridApi = params.api;
@@ -296,7 +298,6 @@ export class StandardsGrid implements OnInit, OnChanges {
     headerName: "User Data",
     marryChildren: true,
     suppressMovable: true,
-    lockVisible: true,
     children: [{
       headerName: "PR",
       field: "time",
@@ -309,7 +310,6 @@ export class StandardsGrid implements OnInit, OnChanges {
       editable: true,
       pinned: 'left',
       lockPinned: true,
-      lockVisible: true,
     },{
       headerName: "Points",
       field: "points",
@@ -321,7 +321,6 @@ export class StandardsGrid implements OnInit, OnChanges {
                       },
       pinned: 'left',
       lockPinned: true,
-      lockVisible: true,
     },{
       headerName: "Standard",
       field: "std",
@@ -333,7 +332,6 @@ export class StandardsGrid implements OnInit, OnChanges {
                       },
       pinned: 'left',
       lockPinned: true,
-      lockVisible: true,
     },{
       headerName: "Rank",
       field: "rank",
@@ -345,7 +343,6 @@ export class StandardsGrid implements OnInit, OnChanges {
                       },
       pinned: 'left',
       lockPinned: true,
-      lockVisible: true,
     },{
       headerName: "PRSR",
       field: "prsr",
@@ -357,7 +354,6 @@ export class StandardsGrid implements OnInit, OnChanges {
                       },
       pinned: 'left',
       lockPinned: true,
-      lockVisible: true,
     },{
       headerName: "Date",
       field: "date",
@@ -369,7 +365,6 @@ export class StandardsGrid implements OnInit, OnChanges {
                       },
       pinned: 'left',
       lockPinned: true,
-      lockVisible: true,
     }]
   }]
 }

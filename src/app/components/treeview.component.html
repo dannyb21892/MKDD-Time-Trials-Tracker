@@ -1,0 +1,6 @@
+<h3>Uncheck any columns you don't want to see</h3>
+<ngx-treeview
+    [config]="config"
+    [items]="items | ngxTreeview:'textField'"
+    (selectedChange)="onSelectedChange($event)">
+</ngx-treeview>

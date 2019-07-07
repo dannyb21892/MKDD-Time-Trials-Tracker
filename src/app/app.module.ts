@@ -10,6 +10,8 @@ import { AgGridModule } from 'ag-grid-angular';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
+import { TreeviewModule } from 'ngx-treeview';
+
 
 //components
 import { AppComponent } from './app.component';
@@ -17,6 +19,7 @@ import { StandardsGrid } from './components/standards-grid.component'
 import { OverallStats } from './components/overall-stats.component'
 import { CellEditorComponent } from './components/cell-editor.component'
 import { FAQComponent } from './components/faq.component'
+import { TreeViewComponent } from './components/treeview.component'
 
 @NgModule({
   declarations: [
@@ -24,7 +27,8 @@ import { FAQComponent } from './components/faq.component'
     StandardsGrid,
     CellEditorComponent,
     OverallStats,
-    FAQComponent
+    FAQComponent,
+    TreeViewComponent
   ],
   imports: [
     BrowserModule,
@@ -34,10 +38,11 @@ import { FAQComponent } from './components/faq.component'
     AgGridModule.withComponents([]),
     MatInputModule,
     MatButtonModule,
-    MatDialogModule
+    MatDialogModule,
+    TreeviewModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent],
-  entryComponents: [CellEditorComponent, FAQComponent]
+  entryComponents: [CellEditorComponent, FAQComponent, TreeViewComponent]
 })
 export class AppModule { }

@@ -1,7 +1,7 @@
 import { Injectable, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, catchError } from 'rxjs/operators'
-import { of } from 'rxjs'
+import { Observable, of } from 'rxjs'
 
 
 @Injectable({
@@ -15,6 +15,7 @@ export class PlayersPageService implements OnInit{
   private usersURL: string = "https://www.mariokart64.com/mkdd/profile.php"
   private wrsURL: string = "https://www.mariokart64.com/mkdd/wrc.php"
   private leaderboardURL: string = "https://www.mariokart64.com/mkdd/coursec.php?cid="
+  private overallRankURL: string = "https://www.mariokart64.com/mkdd/afc.php?cfilter=&full=on"
 
   userList: any = {};
   courseNamesAbbv = [];
@@ -22,6 +23,7 @@ export class PlayersPageService implements OnInit{
   wrs = [];
   leaderboards = [];
   username: string = "";
+  afs = [];
 
   constructor(private http: HttpClient) {
     for(let i=0; i<32; i++){
@@ -128,7 +130,8 @@ export class PlayersPageService implements OnInit{
             if(!this.userList[name]){
               this.userList[name] = {
                 pid: pid,
-                data: null
+                data: null,
+                rank: 9999
               }
             }
           })
@@ -324,6 +327,22 @@ export class PlayersPageService implements OnInit{
       if(!response) return;
       this.setLocalStorage(response)
     })
+  }
+
+  getRankByAf = af => this.afs.findIndex(x => x >= af) + 1 || this.afs.length + 1
+
+  getOverallRanks = () => {
+    return this.http.get(this.corsAnywhere + this.overallRankURL, {responseType: 'text'}).pipe(
+      map((res: any) => {
+        let rows = res.split("checked=")[1].split("<tr>").slice(2)
+        rows.forEach(row => {
+          let username = row.split("<td>")[2].split("</td>")[0]
+          let rank = row.split("<td>")[1].split("</td>")[0]
+          this.afs.push(Number(row.split("<td>")[6].split("</td>")[0]))
+          this.userList[username]["rank"] = Number(rank)
+        })
+      })
+    )
   }
 
   setLocalStorage = (rowData = null) => {

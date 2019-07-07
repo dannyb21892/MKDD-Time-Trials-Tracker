@@ -45,7 +45,7 @@ export class OverallStats implements OnInit, OnChanges {
     row["points"] = points.length ? Math.round(100*points.reduce((a,b) => a + Number(b), 0)/points.length)/100 : "N/A"
 
     let ranks = this.parentRowData.map(r => r.rank)
-    row["af"] = ranks.length ? Math.round(ranks.reduce((a,b) => a + Number(b), 0)/ranks.length) : "N/A"
+    row["af"] = ranks.length ? Math.round(1000*ranks.reduce((a,b) => a + Number(b), 0)/ranks.length)/1000 : "N/A"
 
     let prsrs = this.parentRowData.map(r => r.prsr)
     row["prsr"] = prsrs.length ? (Math.round(100*prsrs.reduce((a,b) => a + Number(b.slice(0,-1)), 0)/prsrs.length)/100) + "%" : "N/A"
@@ -53,6 +53,8 @@ export class OverallStats implements OnInit, OnChanges {
     let pointPairs = Object.entries(this.pointMap).sort((a,b) => Number(a[1]) - Number(b[1]))
     let std = pointPairs.find(x => x[1] > row["points"])
     row["std"] = std ? std[0] : "Newbie"
+
+    row["rank"] = this.pps.getRankByAf(row["af"])
 
     let bestPrsr = Math.max(...this.parentRowData.map(r => Number(r.prsr.slice(0,-1))))
     let bestPrsrRow = this.parentRowData.find(r => Number(r.prsr.slice(0,-1)) === bestPrsr)
@@ -125,6 +127,12 @@ export class OverallStats implements OnInit, OnChanges {
   columnDefs = [{
     headerName: "Overall Statistics",
     children: [{
+        headerName: "Overall Rank",
+        field: "rank",
+        width: 120,
+        cellStyle: {"text-align": 'center'},
+        cellClassRules: { "cell-data-border": "true"},
+      },{
         headerName: "Average Points",
         field: "points",
         width: 120,
