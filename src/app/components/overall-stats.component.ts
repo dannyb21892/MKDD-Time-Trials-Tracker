@@ -39,7 +39,7 @@ export class OverallStats implements OnInit, OnChanges {
 
     let row = {}
 
-    let nonStdCols = ["id", "course", "time", "date", "prsr", "rank", "std", "points", "trial", "value"]
+    let nonStdCols = ["id", "course", "time", "date", "prsr", "rank", "std", "points", "trial", "value", "goal-time", "goal-rank", "time-to-go", "difficulty"]
 
     let points = this.parentRowData.map(r => r.points)
     row["points"] = points.length ? Math.round(100*points.reduce((a,b) => a + Number(b), 0)/points.length)/100 : "N/A"

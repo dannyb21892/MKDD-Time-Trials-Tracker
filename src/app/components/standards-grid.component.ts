@@ -187,6 +187,10 @@ export class StandardsGrid implements OnInit, OnChanges {
     return Number(this.userData[course][trial]["rank"]) > Number(params.data["rank"])
   }
 
+  metGoalFinder = params => {
+    return params.data["time-to-go"] === '0"000'
+  }
+
   setUserData = () => {
     this.localUserData = this.pps.getLocalStorage();
     if(Object.keys(this.userData).length) {
@@ -198,23 +202,46 @@ export class StandardsGrid implements OnInit, OnChanges {
   setUsername = () => {}
 
   onCellChanged = event => {
-    if(event.colDef.field !== "time") return;
-    let course = event.data.course;
-    let trial = event.data.trial === "3-lap" ? "threeLap" : "fastLap"
-    let rowNode = event.node;
-    rowNode.setDataValue("date", this.formatDate(new Date()))
-    let standardAndPoints = this.getStandardAndPointsFromTime(event.newValue, rowNode.data)
-    rowNode.setDataValue("std", standardAndPoints.standard)
-    rowNode.setDataValue("points", standardAndPoints.points >= 0 ? Math.round(standardAndPoints.points) : Number(standardAndPoints.points))
-    rowNode.setDataValue("prsr", (Math.round(10000 * this.timeConverter(this.wrs[event.rowIndex]) / this.timeConverter(event.newValue)) / 100) + "%")
-    this.pps.getRank(event.rowIndex, event.newValue, rowNode)
-    this.rowData = [...this.rowData]
+    if(event.colDef.field === "time"){
+      let course = event.data.course;
+      let trial = event.data.trial === "3-lap" ? "threeLap" : "fastLap"
+      let rowNode = event.node;
+
+      let newDate = this.formatDate(new Date())
+      if(newDate !== rowNode.data.date) rowNode.setDataValue("date", this.formatDate(new Date()))
+
+      let standardAndPoints = this.getStandardAndPointsFromTime(event.newValue, rowNode.data)
+      if(standardAndPoints.standard !== rowNode.data.std) rowNode.setDataValue("std", standardAndPoints.standard)
+
+      let newPoints = standardAndPoints.points >= 0 ? Math.round(standardAndPoints.points) : Number(standardAndPoints.points)
+      if(newPoints !== rowNode.data.points) rowNode.setDataValue("points", newPoints)
+
+      let newPrsr = (Math.round(10000 * this.timeConverter(this.wrs[event.rowIndex]) / this.timeConverter(event.newValue)) / 100) + "%"
+      if(newPrsr !== rowNode.data.prsr) rowNode.setDataValue("prsr", newPrsr)
+
+      let newTimeLeft = this.valueConverter(this.timeConverter(rowNode.data.time) - this.timeConverter(rowNode.data["goal-time"]))
+      newTimeLeft = (newTimeLeft[0] === "-" || newTimeLeft === '0"0') ? '0"000' : newTimeLeft
+      if(newTimeLeft !== rowNode.data["time-to-go"]) rowNode.setDataValue("time-to-go", newTimeLeft)
+
+      this.pps.getRank(event.rowIndex, event.newValue, rowNode, "rank", event.oldValue)
+      this.rowData = [...this.rowData]
+    }
+    else if(event.colDef.field === "goal-time"){
+      let rowNode = event.node;
+      this.pps.getRank(event.rowIndex, event.newValue, rowNode, "goal-rank", event.oldValue)
+      this.rowData = [...this.rowData]
+    }
+    else if(event.colDef.field === "goal-rank"){
+      let rowNode = event.node;
+      this.pps.getRank(event.rowIndex, event.newValue, rowNode, "goal-time", event.oldValue)
+      this.rowData = [...this.rowData]
+    }
   }
 
   getStandardAndPointsFromTime = (time, row) => {
     let value = this.timeConverter(time)
     let values = Object.entries(row)
-      .filter(keyVal => !["course", "date", "id", "points", "prsr", "rank", "std", "time", "trial", "value"].includes(keyVal[0]))
+      .filter(keyVal => !["course", "date", "id", "points", "prsr", "rank", "std", "time", "trial", "value", "goal-time", "goal-rank", "time-to-go", "difficulty"].includes(keyVal[0]))
       .map(keyVal => {return [keyVal[0], this.timeConverter(keyVal[1])]})
       .sort((a,b) => a[1] - b[1])
     let pair = values.find(pair => pair[1] > value)
@@ -233,11 +260,12 @@ export class StandardsGrid implements OnInit, OnChanges {
   }
 
   valueConverter = (val) => {
+    val = Math.round(val*1000)/1000 //round to nearest thousandth to prevent floating point inaccuracy
     let minutes = Math.floor(val/60)
     let seconds = Math.floor(val - 60*minutes)
     let milliseconds: any = Math.ceil(1000*(val - Math.floor(val)))
     let out = minutes ? `${minutes}'` : ""
-    out += seconds === 0 ? '00"' : (seconds < 10 ? `0${seconds}"` : `${seconds}"`)
+    out += seconds === 0 ? (minutes ? '00"' : '0"') : (seconds < 10 ? (minutes ? `0${seconds}"` : `${seconds}"`) : `${seconds}"`)
     milliseconds = milliseconds === 0 ? '0' : (milliseconds < 10 ? `00${milliseconds}` : (milliseconds < 100 ? `0${milliseconds}` : `${milliseconds}`))
     while(milliseconds.length > 1 && milliseconds.slice(-1)==="0"){
       milliseconds = milliseconds.slice(0,-1)
@@ -358,6 +386,7 @@ export class StandardsGrid implements OnInit, OnChanges {
       headerName: "Date",
       field: "date",
       colId: "date",
+      editable: true,
       width: 100,
       cellStyle: {"text-align": 'center'},
       cellClassRules: { "cell-data-border": "true",
@@ -366,5 +395,54 @@ export class StandardsGrid implements OnInit, OnChanges {
       pinned: 'left',
       lockPinned: true,
     }]
+  },{
+    headerName: "Goals",
+    marryChildren: true,
+    suppressMovable: true,
+    children: [{
+      headerName: "Goal PR",
+      field: "goal-time",
+      width: 80,
+      cellStyle: {"text-align": 'center'},
+      cellClassRules: { "cell-data-border": "true",
+                        "new-pr": (params) => {return this.metGoalFinder(params)}
+                      },
+      cellEditorFramework: CellEditorComponent,
+      editable: true,
+      pinned: 'left',
+      lockPinned: true,
+    },{
+      headerName: "Goal Rank",
+      field: "goal-rank",
+      width: 80,
+      cellStyle: {"text-align": 'center'},
+      cellClassRules: { "cell-data-border": "true",
+                        "new-pr": (params) => {return this.metGoalFinder(params)}
+                      },
+      cellEditorFramework: CellEditorComponent,
+      editable: true,
+      pinned: 'left',
+      lockPinned: true,
+    },{
+      headerName: "Time Left",
+      field: "time-to-go",
+      width: 80,
+      cellStyle: {"text-align": 'center'},
+      cellClassRules: { "cell-data-border": "true",
+                        "new-pr": (params) => {return this.metGoalFinder(params)}
+                      },
+      pinned: 'left',
+      lockPinned: true,
+    }
+    // },{
+    //   headerName: "Difficulty",
+    //   field: "difficulty",
+    //   width: 80,
+    //   cellStyle: {"text-align": 'center'},
+    //   cellClassRules: { "cell-data-border": "true"},
+    //   pinned: 'left',
+    //   lockPinned: true,
+    // }]
+    ]
   }]
 }

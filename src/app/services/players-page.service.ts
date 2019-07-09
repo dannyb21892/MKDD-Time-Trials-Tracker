@@ -290,17 +290,50 @@ export class PlayersPageService implements OnInit{
     )
   }
 
-  getRank = (courseId, time, rowNode) => {
+  getRank = (courseId, value, rowNode, field, oldValue) => {
     if(this.leaderboards[courseId].length){
-      rowNode.setDataValue("rank", this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(time)) + 1)
+      if(field ==="rank"){
+        //incoming value is new inputted time
+        let newRank = (this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(value)) + 1) || (this.leaderboards[courseId].length + 1)
+        if(newRank !== rowNode.data["rank"]) rowNode.setDataValue(field, newRank)
+      }
+      else if(field === "goal-rank"){
+        //incoming value is new inputted goal-time
+        let newRank = (this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(value)) + 1) || (this.leaderboards[courseId].length + 1)
+        if(newRank !== rowNode.data["goal-rank"]) rowNode.setDataValue(field, newRank)
+
+        let newTimeLeft = this.valueConverter(this.timeConverter(rowNode.data.time) - this.timeConverter(rowNode.data["goal-time"]))
+        newTimeLeft = (newTimeLeft[0] === "-" || newTimeLeft === '0"0') ? '0"000' : newTimeLeft
+        if(newTimeLeft !== rowNode.data["time-to-go"]) rowNode.setDataValue("time-to-go", newTimeLeft)
+      }
+      else if(field === "goal-time"){
+        //incoming value is new inputted goal-rank, but first make sure that rank isnt larger than the lb size
+        let time
+        if(value > this.leaderboards[courseId].length){
+          time = this.leaderboards[courseId].slice(-1)[0]
+
+          let newRank = this.leaderboards[courseId].length + 1
+          if(newRank !== rowNode.data["goal-rank"]) rowNode.setDataValue("goal-rank", newRank)
+        } else {
+          time = this.leaderboards[courseId][value-1]
+        }
+        while(!Number(time[0])){
+          time = time.slice(1)
+        }
+        if(time !== rowNode.data["goal-time"] && oldValue && oldValue !== value) rowNode.setDataValue(field, time)
+
+        let newTimeLeft = this.valueConverter(this.timeConverter(rowNode.data.time) - this.timeConverter(rowNode.data["goal-time"]))
+        newTimeLeft = (newTimeLeft[0] === "-" || newTimeLeft === '0"0') ? '0"000' : newTimeLeft
+        if(newTimeLeft !== rowNode.data["time-to-go"]) rowNode.setDataValue("time-to-go", newTimeLeft)
+      }
       this.setLocalStorage(rowNode.data)
     }
     else {
-      this.getLeaderboard(courseId, rowNode, time)
+      this.getLeaderboard(courseId, rowNode, value, field, oldValue)
     }
   }
 
-  getLeaderboard = (courseId, rowNode, time, start = 1, recursive = true) => {
+  getLeaderboard = (courseId, rowNode, value, field, oldValue, start = 1, recursive = true) => {
     let address = this.corsAnywhere + this.leaderboardURL + courseId + (start > 1 ? "&start=" + start : "")
     this.http.get(address, {responseType: 'text'}).pipe(
       map((res: any) => {
@@ -310,13 +343,46 @@ export class PlayersPageService implements OnInit{
         this.leaderboards[courseId] = [...this.leaderboards[courseId], ...times]
         if(recursive){
           for(let start = 101; start <= leaderboardSize; start=start+100){
-            this.getLeaderboard(courseId, rowNode, time, start, false)
+            this.getLeaderboard(courseId, rowNode, value, field, oldValue, start, false)
           }
           return false
         }
         else if(this.leaderboards[courseId].length === leaderboardSize){
           this.leaderboards[courseId].sort((a,b) => this.timeConverter(a) - this.timeConverter(b))
-          rowNode.setDataValue("rank", (this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(time)) + 1) || this.leaderboards[courseId].length + 1)
+          if(field ==="rank"){
+            //incoming value is new inputted time
+            let newRank = (this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(value)) + 1) || (this.leaderboards[courseId].length + 1)
+            if(newRank !== rowNode.data["rank"]) rowNode.setDataValue(field, newRank)
+          }
+          else if(field === "goal-rank"){
+            //incoming value is new inputted goal-time
+            let newRank = (this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(value)) + 1) || (this.leaderboards[courseId].length + 1)
+            if(newRank !== rowNode.data["goal-rank"]) rowNode.setDataValue(field, newRank)
+
+            let newTimeLeft = this.valueConverter(this.timeConverter(rowNode.data.time) - this.timeConverter(rowNode.data["goal-time"]))
+            newTimeLeft = (newTimeLeft[0] === "-" || newTimeLeft === '0"0') ? '0"000' : newTimeLeft
+            if(newTimeLeft !== rowNode.data["time-to-go"]) rowNode.setDataValue("time-to-go", newTimeLeft)
+          }
+          else if(field === "goal-time"){
+            //incoming value is new inputted goal-rank, but first make sure that rank isnt larger than the lb size
+            let time
+            if(value > this.leaderboards[courseId].length){
+              time = this.leaderboards[courseId].slice(-1)[0]
+
+              let newRank = this.leaderboards[courseId].length + 1
+              if(newRank !== rowNode.data["goal-rank"]) rowNode.setDataValue("goal-rank", newRank)
+            } else {
+              time = this.leaderboards[courseId][value-1]
+            }
+            while(!Number(time[0])){
+              time = time.slice(1)
+            }
+            if(time !== rowNode.data["goal-time"] && oldValue && oldValue !== value) rowNode.setDataValue(field, time)
+
+            let newTimeLeft = this.valueConverter(this.timeConverter(rowNode.data.time) - this.timeConverter(rowNode.data["goal-time"]))
+            newTimeLeft = (newTimeLeft[0] === "-" || newTimeLeft === '0"0') ? '0"000' : newTimeLeft
+            if(newTimeLeft !== rowNode.data["time-to-go"] && oldValue && oldValue !== value) rowNode.setDataValue("time-to-go", newTimeLeft)
+          }
           return rowNode.data
         }
         else {
@@ -376,6 +442,20 @@ export class PlayersPageService implements OnInit{
     milliseconds = Number(milliseconds + "0".repeat(3 - milliseconds.length))
     let value: any = minutes*60 + seconds + milliseconds/1000
     return value
+  }
+
+  valueConverter = (val) => {
+    val = Math.round(val*1000)/1000 //round to nearest thousandth to prevent floating point inaccuracy
+    let minutes = Math.floor(val/60)
+    let seconds = Math.floor(val - 60*minutes)
+    let milliseconds: any = Math.ceil(1000*(val - Math.floor(val)))
+    let out = minutes ? `${minutes}'` : ""
+    out += seconds === 0 ? (minutes ? '00"' : '0"') : (seconds < 10 ? (minutes ? `0${seconds}"` : `${seconds}"`) : `${seconds}"`)
+    milliseconds = milliseconds === 0 ? '0' : (milliseconds < 10 ? `00${milliseconds}` : (milliseconds < 100 ? `0${milliseconds}` : `${milliseconds}`))
+    while(milliseconds.length > 1 && milliseconds.slice(-1)==="0"){
+      milliseconds = milliseconds.slice(0,-1)
+    }
+    return out + milliseconds
   }
 
   formatDate = date => `${date.getFullYear()}-${(date.getMonth() < 9 ? "0" : "") + (date.getMonth()+1)}-${(date.getDay() < 10 ? "0" : "") + date.getDay()}`
