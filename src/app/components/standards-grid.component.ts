@@ -33,6 +33,8 @@ export class StandardsGrid implements OnInit, OnChanges {
     Beginner: "Beg"
   }
 
+  changeDebouncer = []
+
   constructor(private pps: PlayersPageService) {}
 
   ngOnInit() {
@@ -202,7 +204,7 @@ export class StandardsGrid implements OnInit, OnChanges {
   setUsername = () => {}
 
   onCellChanged = event => {
-    if(event.colDef.field === "time"){
+    if(event.colDef.field === "time" && !this.changeDebouncer.includes("time")){
       let course = event.data.course;
       let trial = event.data.trial === "3-lap" ? "threeLap" : "fastLap"
       let rowNode = event.node;
@@ -223,18 +225,27 @@ export class StandardsGrid implements OnInit, OnChanges {
       newTimeLeft = (newTimeLeft[0] === "-" || newTimeLeft === '0"0') ? '0"000' : newTimeLeft
       if(newTimeLeft !== rowNode.data["time-to-go"]) rowNode.setDataValue("time-to-go", newTimeLeft)
 
-      this.pps.getRank(event.rowIndex, event.newValue, rowNode, "rank", event.oldValue)
+      this.pps.getRank(event.rowIndex, event.newValue, rowNode, "rank", event.oldValue, this.changeDebouncer)
       this.rowData = [...this.rowData]
+
+      this.changeDebouncer.push("time")
+      setTimeout(() => this.changeDebouncer = this.changeDebouncer.filter(x => x !== "time"), 2000)
     }
-    else if(event.colDef.field === "goal-time"){
+    else if(event.colDef.field === "goal-time" && !this.changeDebouncer.includes("goal-time")){
       let rowNode = event.node;
-      this.pps.getRank(event.rowIndex, event.newValue, rowNode, "goal-rank", event.oldValue)
+      this.pps.getRank(event.rowIndex, event.newValue, rowNode, "goal-rank", event.oldValue, this.changeDebouncer)
       this.rowData = [...this.rowData]
+
+      this.changeDebouncer.push("goal-time")
+      setTimeout(() => this.changeDebouncer = this.changeDebouncer.filter(x => x !== "goal-time"), 2000)
     }
-    else if(event.colDef.field === "goal-rank"){
+    else if(event.colDef.field === "goal-rank" && !this.changeDebouncer.includes("goal-rank")){
       let rowNode = event.node;
-      this.pps.getRank(event.rowIndex, event.newValue, rowNode, "goal-time", event.oldValue)
+      this.pps.getRank(event.rowIndex, event.newValue, rowNode, "goal-time", event.oldValue, this.changeDebouncer)
       this.rowData = [...this.rowData]
+
+      this.changeDebouncer.push("goal-rank")
+      setTimeout(() => this.changeDebouncer = this.changeDebouncer.filter(x => x !== "goal-rank"), 2000)
     }
   }
 

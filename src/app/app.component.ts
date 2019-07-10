@@ -91,7 +91,6 @@ export class AppComponent implements OnInit{
   syncData = () => {
     this.pps.setLocalStorage(null)
     this.dumbChangeDetector = {};
-    //this.userData = Object.assign({}, this.userData)
   }
 
   onEnter = key => {
@@ -105,6 +104,6 @@ export class AppComponent implements OnInit{
   }
 
   showTreeView = () => {
-    let dialogRef = this.dialog.open(TreeViewComponent, {width: '300px', maxWidth: "100%", maxHeight: "380px", height: "380px", data: this.standardsGrid.gridColumnApi});
+    let dialogRef = this.dialog.open(TreeViewComponent, {width: '300px', maxWidth: "100%", maxHeight: "630px", height: "630px", data: this.standardsGrid.gridColumnApi});
   }
 }

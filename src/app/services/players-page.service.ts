@@ -290,17 +290,17 @@ export class PlayersPageService implements OnInit{
     )
   }
 
-  getRank = (courseId, value, rowNode, field, oldValue) => {
+  getRank = (courseId, value, rowNode, field, oldValue, changeDebouncer) => {
     if(this.leaderboards[courseId].length){
       if(field ==="rank"){
         //incoming value is new inputted time
         let newRank = (this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(value)) + 1) || (this.leaderboards[courseId].length + 1)
-        if(newRank !== rowNode.data["rank"]) rowNode.setDataValue(field, newRank)
+        if(newRank !== rowNode.data["rank"] && !changeDebouncer.includes(field)) rowNode.setDataValue(field, newRank)
       }
       else if(field === "goal-rank"){
         //incoming value is new inputted goal-time
         let newRank = (this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(value)) + 1) || (this.leaderboards[courseId].length + 1)
-        if(newRank !== rowNode.data["goal-rank"]) rowNode.setDataValue(field, newRank)
+        if(newRank !== rowNode.data["goal-rank"] && !changeDebouncer.includes(field)) rowNode.setDataValue(field, newRank)
 
         let newTimeLeft = this.valueConverter(this.timeConverter(rowNode.data.time) - this.timeConverter(rowNode.data["goal-time"]))
         newTimeLeft = (newTimeLeft[0] === "-" || newTimeLeft === '0"0') ? '0"000' : newTimeLeft
@@ -320,20 +320,27 @@ export class PlayersPageService implements OnInit{
         while(!Number(time[0])){
           time = time.slice(1)
         }
-        if(time !== rowNode.data["goal-time"] && oldValue && oldValue !== value) rowNode.setDataValue(field, time)
+        //if the goal time corresponding to the incoming inputted goal rank is different from the existing goal time AND
+        //the change debouncer doesnt indicate that goal time has been changed very recently
+        //either: a:(there was already a goal rank which is different from the inputted one) OR b:(there was not already a goal time)
+        //clause "a" prevents infinite change propagation since goal time changes goal rank and vice versa
+        //clause b ensures the change can propagate once
+        if(time !== rowNode.data["goal-time"] && !changeDebouncer.includes(field) && ((oldValue && oldValue !== value) || (!rowNode.data["goal-time"]))) {
+          rowNode.setDataValue(field, time)
 
-        let newTimeLeft = this.valueConverter(this.timeConverter(rowNode.data.time) - this.timeConverter(rowNode.data["goal-time"]))
-        newTimeLeft = (newTimeLeft[0] === "-" || newTimeLeft === '0"0') ? '0"000' : newTimeLeft
-        if(newTimeLeft !== rowNode.data["time-to-go"]) rowNode.setDataValue("time-to-go", newTimeLeft)
+          let newTimeLeft = this.valueConverter(this.timeConverter(rowNode.data.time) - this.timeConverter(rowNode.data["goal-time"]))
+          newTimeLeft = (newTimeLeft[0] === "-" || newTimeLeft === '0"0') ? '0"000' : newTimeLeft
+          if(newTimeLeft !== rowNode.data["time-to-go"]) rowNode.setDataValue("time-to-go", newTimeLeft)
+        }
       }
       this.setLocalStorage(rowNode.data)
     }
     else {
-      this.getLeaderboard(courseId, rowNode, value, field, oldValue)
+      this.getLeaderboard(courseId, rowNode, value, field, oldValue, changeDebouncer)
     }
   }
 
-  getLeaderboard = (courseId, rowNode, value, field, oldValue, start = 1, recursive = true) => {
+  getLeaderboard = (courseId, rowNode, value, field, oldValue, changeDebouncer, start = 1, recursive = true) => {
     let address = this.corsAnywhere + this.leaderboardURL + courseId + (start > 1 ? "&start=" + start : "")
     this.http.get(address, {responseType: 'text'}).pipe(
       map((res: any) => {
@@ -343,7 +350,7 @@ export class PlayersPageService implements OnInit{
         this.leaderboards[courseId] = [...this.leaderboards[courseId], ...times]
         if(recursive){
           for(let start = 101; start <= leaderboardSize; start=start+100){
-            this.getLeaderboard(courseId, rowNode, value, field, oldValue, start, false)
+            this.getLeaderboard(courseId, rowNode, value, field, oldValue, changeDebouncer, start, false)
           }
           return false
         }
@@ -352,12 +359,12 @@ export class PlayersPageService implements OnInit{
           if(field ==="rank"){
             //incoming value is new inputted time
             let newRank = (this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(value)) + 1) || (this.leaderboards[courseId].length + 1)
-            if(newRank !== rowNode.data["rank"]) rowNode.setDataValue(field, newRank)
+            if(newRank !== rowNode.data["rank"] && !changeDebouncer.includes(field)) rowNode.setDataValue(field, newRank)
           }
           else if(field === "goal-rank"){
             //incoming value is new inputted goal-time
             let newRank = (this.leaderboards[courseId].findIndex(x => this.timeConverter(x) >= this.timeConverter(value)) + 1) || (this.leaderboards[courseId].length + 1)
-            if(newRank !== rowNode.data["goal-rank"]) rowNode.setDataValue(field, newRank)
+            if(newRank !== rowNode.data["goal-rank"] && !changeDebouncer.includes(field)) rowNode.setDataValue(field, newRank)
 
             let newTimeLeft = this.valueConverter(this.timeConverter(rowNode.data.time) - this.timeConverter(rowNode.data["goal-time"]))
             newTimeLeft = (newTimeLeft[0] === "-" || newTimeLeft === '0"0') ? '0"000' : newTimeLeft
@@ -377,11 +384,18 @@ export class PlayersPageService implements OnInit{
             while(!Number(time[0])){
               time = time.slice(1)
             }
-            if(time !== rowNode.data["goal-time"] && oldValue && oldValue !== value) rowNode.setDataValue(field, time)
+            //if the goal time corresponding to the incoming inputted goal rank is different from the existing goal time AND
+            //the change debouncer doesnt indicate that goal time has been changed very recently
+            //either: a:(there was already a goal rank which is different from the inputted one) OR b:(there was not already a goal time)
+            //clause "a" prevents infinite change propagation since goal time changes goal rank and vice versa
+            //clause b ensures the change can propagate once
+            if(time !== rowNode.data["goal-time"] && !changeDebouncer.includes(field) && ((oldValue && oldValue !== value) || (!rowNode.data["goal-time"]))){
+              rowNode.setDataValue(field, time)
 
-            let newTimeLeft = this.valueConverter(this.timeConverter(rowNode.data.time) - this.timeConverter(rowNode.data["goal-time"]))
-            newTimeLeft = (newTimeLeft[0] === "-" || newTimeLeft === '0"0') ? '0"000' : newTimeLeft
-            if(newTimeLeft !== rowNode.data["time-to-go"] && oldValue && oldValue !== value) rowNode.setDataValue("time-to-go", newTimeLeft)
+              let newTimeLeft = this.valueConverter(this.timeConverter(rowNode.data.time) - this.timeConverter(time))
+              newTimeLeft = (newTimeLeft[0] === "-" || newTimeLeft === '0"0') ? '0"000' : newTimeLeft
+              if(newTimeLeft !== rowNode.data["time-to-go"] && oldValue && oldValue !== value) rowNode.setDataValue("time-to-go", newTimeLeft)
+            }
           }
           return rowNode.data
         }
