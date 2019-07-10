@@ -45,7 +45,6 @@ export class TreeViewComponent implements OnInit {
   }
 
   onSelectedChange(params) {
-    console.log(params)
     //first turn all columns invisible
     this.gridColumnApi.setColumnsVisible(this.gridColumnApi.getColumnState().map(c => c["colId"]), false)
     //get columns supposed to be visible

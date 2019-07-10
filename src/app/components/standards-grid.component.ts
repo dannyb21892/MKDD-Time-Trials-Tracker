@@ -96,6 +96,7 @@ export class StandardsGrid implements OnInit, OnChanges {
 
       this.columnDefs.push(colDef)
     })
+
     this.standards.courses.forEach(course => {
       let id1 = course + "3"
       let id2 = course + "f"
@@ -299,6 +300,15 @@ export class StandardsGrid implements OnInit, OnChanges {
   onGridReady(params) {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
+  }
+
+  onFirstDataRendered(params) {
+    let colVisPrefs: any = window.localStorage.getItem("mkdd--colVisPrefs")
+    colVisPrefs = colVisPrefs === "null" ? [] : colVisPrefs.split(",")
+    if(colVisPrefs && colVisPrefs.length){
+      this.gridColumnApi.setColumnsVisible(this.gridColumnApi.getAllColumns().map(col => col.colId), false)
+      this.gridColumnApi.setColumnsVisible(colVisPrefs, true)
+    }
   }
 
   getRowNodeId = function(data) {
