@@ -219,12 +219,14 @@ export class StandardsGrid implements OnInit, OnChanges {
       let newPoints = standardAndPoints.points >= 0 ? Math.round(standardAndPoints.points) : Number(standardAndPoints.points)
       if(newPoints !== rowNode.data.points) rowNode.setDataValue("points", newPoints)
 
-      let newPrsr = (Math.round(10000 * this.timeConverter(this.wrs[event.rowIndex]) / this.timeConverter(event.newValue)) / 100) + "%"
+      let newPrsr = Math.min(100,(Math.round(10000 * this.timeConverter(this.wrs[event.rowIndex]) / this.timeConverter(event.newValue)) / 100)) + "%"
       if(newPrsr !== rowNode.data.prsr) rowNode.setDataValue("prsr", newPrsr)
 
-      let newTimeLeft = this.valueConverter(this.timeConverter(rowNode.data.time) - this.timeConverter(rowNode.data["goal-time"]))
-      newTimeLeft = (newTimeLeft[0] === "-" || newTimeLeft === '0"0') ? '0"000' : newTimeLeft
-      if(newTimeLeft !== rowNode.data["time-to-go"]) rowNode.setDataValue("time-to-go", newTimeLeft)
+      if(rowNode.data["goal-time"]){
+        let newTimeLeft = this.valueConverter(this.timeConverter(rowNode.data.time) - this.timeConverter(rowNode.data["goal-time"]))
+        newTimeLeft = (newTimeLeft[0] === "-" || newTimeLeft === '0"0') ? '0"000' : newTimeLeft
+        if(newTimeLeft !== rowNode.data["time-to-go"]) rowNode.setDataValue("time-to-go", newTimeLeft)
+      }
 
       this.pps.getRank(event.rowIndex, event.newValue, rowNode, "rank", event.oldValue, this.changeDebouncer)
       this.rowData = [...this.rowData]
