@@ -297,7 +297,7 @@ export class StandardsGrid implements OnInit, OnChanges {
     return out
   }
 
-  formatDate = date => `${date.getFullYear()}-${(date.getMonth() < 9 ? "0" : "") + (date.getMonth()+1)}-${(date.getDay() < 10 ? "0" : "") + date.getDate()}`
+  formatDate = date => `${date.getFullYear()}-${(date.getMonth() < 9 ? "0" : "") + (date.getMonth()+1)}-${(date.getDate() < 10 ? "0" : "") + date.getDate()}`
 
   onGridReady(params) {
     this.gridApi = params.api;
