@@ -1,6 +1,7 @@
 import { Component, OnInit, OnChanges, SimpleChanges, Input } from '@angular/core';
 import { CellEditorComponent } from "./cell-editor.component"
 import { PlayersPageService } from 'src/app/services/players-page.service';
+import { SingleSyncRenderer } from 'src/app/components/single-sync-renderer.component';
 
 @Component({
   selector: 'standards-grid',
@@ -20,6 +21,7 @@ export class StandardsGrid implements OnInit, OnChanges {
   columnDefs = [];
   rowData = [];
   points = {};
+  frameworkComponents = {singleSyncRenderer: SingleSyncRenderer}
 
   gridApi;
   gridColumnApi;
@@ -40,7 +42,7 @@ export class StandardsGrid implements OnInit, OnChanges {
   ngOnInit() {
     this.localUserData = this.pps.getLocalStorage();
     let colVisPrefs = window.localStorage.getItem("mkdd--colVisPrefs") || []
-    this.defaultColDefs[2]["children"].forEach(c => c["hide"] = !colVisPrefs.includes(c["field"]))
+    this.defaultColDefs[3]["children"].forEach(c => c["hide"] = !colVisPrefs.includes(c["field"]))
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -128,7 +130,7 @@ export class StandardsGrid implements OnInit, OnChanges {
     let row = {
       id: id,
       course: id.slice(-1) === "3" ? course : "",
-      trial: id.slice(-1) === "3" ? "3-lap" : "f-lap",
+      trial: id.slice(-1) === "3" ? "3-lap" : "f-lap"
     }
     row = Object.assign(row, this.userData[course][trial])
     row["prsr"] = row["prsr"] + "%"
@@ -255,7 +257,7 @@ export class StandardsGrid implements OnInit, OnChanges {
   getStandardAndPointsFromTime = (time, row) => {
     let value = this.timeConverter(time)
     let values = Object.entries(row)
-      .filter(keyVal => !["course", "date", "id", "points", "prsr", "rank", "std", "time", "trial", "value", "goal-time", "goal-rank", "time-to-go", "difficulty"].includes(keyVal[0]))
+      .filter(keyVal => !["course", "sync", "date", "id", "points", "prsr", "rank", "std", "time", "trial", "value", "goal-time", "goal-rank", "time-to-go", "difficulty"].includes(keyVal[0]))
       .map(keyVal => {return [keyVal[0], this.timeConverter(keyVal[1])]})
       .sort((a,b) => a[1] - b[1])
     let pair = values.find(pair => pair[1] > value)
@@ -345,6 +347,15 @@ export class StandardsGrid implements OnInit, OnChanges {
     pinned: 'left',
     suppressMovable: true
     //lockPosition: true
+  },{
+    headerName: "Sync",
+    field: "sync",
+    width: 49,
+    cellStyle: {"background-color": "#1c1f20", "text-align": 'center'},
+    cellClassRules: { "cell-data-border": "true"},
+    cellRenderer: 'singleSyncRenderer',
+    pinned: 'left',
+    suppressMovable: true
   },{
     headerName: "User Data",
     marryChildren: true,

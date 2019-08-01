@@ -1,5 +1,5 @@
 import { Injectable, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map, catchError } from 'rxjs/operators'
 import { Observable, of } from 'rxjs'
 
@@ -10,13 +10,21 @@ import { Observable, of } from 'rxjs'
 export class PlayersPageService implements OnInit{
 
   //use the cors anywhere link for local testing. use the aqueous-anchorage link when building for production
-  private corsAnywhere: string = "https://cors-anywhere.herokuapp.com/"//"https://aqueous-anchorage-29772.herokuapp.com/"//
+  private corsAnywhere: string = "https://aqueous-anchorage-29772.herokuapp.com/"//"https://cors-anywhere.herokuapp.com/"//
   private standardsURL: string = "https://www.mariokart64.com/mkdd/standardc.php"
   private usersURL: string = "https://www.mariokart64.com/mkdd/profile.php"
   private wrsURL: string = "https://www.mariokart64.com/mkdd/wrc.php"
   private leaderboardURL: string = "https://www.mariokart64.com/mkdd/coursec.php?cid="
   private overallRankURL: string = "https://www.mariokart64.com/mkdd/afc.php?cfilter=&full=on"
+  private submitURL: string = "http://snorge.wrvids.com/mkdd/email.php"
 
+  //to submit, you have to post data like the following:
+  //0=1%2717%22308&1=&2=&3=&4=&5=&6=&7=&8=&9=&10=&11=&12=&13=&14=&15=&16=&17=&18=&19=&20=&21=&22=&23=&24=&25=&26=&27=&28=&29=&30=&31=&message=Sorry+about+this+fake+submission%2C+was+testing+something.+Please+ignore.&name=Daniel+Baamonde
+  //to here http://snorge.wrvids.com/mkdd/email.php
+  //not sure about headers, maybe these:
+  //Content-Length: number of characters after url encoding
+  //Content-Type: application/x-www-form-urlencoded
+  //for new players its like this newname=&country=&region=&addy=&hertz=sixty&0=&1=&2=&3=&4=&5=&6=&7=&8=&9=&10=&11=&12=&13=&14=&15=&16=&17=&18=&19=&20=&21=&22=&23=&24=&25=&26=&27=&28=&29=&30=&31=&message=&name=Scott+Abbey
   userList: any = {};
   courseNamesAbbv = [];
   courseNames = [];
@@ -432,11 +440,35 @@ export class PlayersPageService implements OnInit{
     }
     if(rowData && rowData.id) {
       obj[`${rowData.id}`] = rowData
-      if(data.username === this.username){
-        obj = Object.assign(data, obj)
-      }
+    }
+    if(data.username === this.username){
+      obj = Object.assign(data, obj)
     }
     window.localStorage.setItem("mkdd--userData", JSON.stringify(obj))
+  }
+
+  postSubmission = (data, subHistory) => {
+    let address = this.corsAnywhere + this.submitURL
+    let options: any = {
+        headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
+        responseType: 'text'
+    };
+    if(data.includes("newname=&")){
+      alert("Invalid Username")
+    }
+    else {
+      this.http.post(address, data, options).subscribe(
+        (x: any) => {
+          if(x.includes("Message successfully sent!")){
+            alert("Times successfully submitted!")
+            window.localStorage.setItem("mkdd--submissions", JSON.stringify(subHistory))
+          }
+          else{
+            alert("Could not submit times. Try again later, and if the issue persists, contact dannyb21892!")
+          }
+        }
+      )
+    }
   }
 
   getLocalStorage = () => {return JSON.parse(window.localStorage.getItem("mkdd--userData")) || {}}

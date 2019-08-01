@@ -76,7 +76,7 @@ export class CellEditorComponent implements ICellEditorAngularComp, AfterViewIni
     private isKeyPressedValidForTime(event): boolean {
         const charCode = this.getCharCodeFromEvent(event);
         const charStr = event.key ? event.key : String.fromCharCode(charCode);
-        if(["Backspace","Delete","1","2","3","4","5","6","7","8","9","0","'",'"'].includes(charStr)){ return true;}
+        if(["ArrowLeft","ArrowRight","Backspace","Delete","1","2","3","4","5","6","7","8","9","0","'",'"'].includes(charStr)){ return true;}
         else{return false;}
 
     }
@@ -84,7 +84,7 @@ export class CellEditorComponent implements ICellEditorAngularComp, AfterViewIni
     private isKeyPressedValidForRank(event): boolean {
         const charCode = this.getCharCodeFromEvent(event);
         const charStr = event.key ? event.key : String.fromCharCode(charCode);
-        if(["Backspace","Delete","1","2","3","4","5","6","7","8","9","0"].includes(charStr)){ return true;}
+        if(["ArrowLeft","ArrowRight","Backspace","Delete","1","2","3","4","5","6","7","8","9","0"].includes(charStr)){ return true;}
         else{return false;}
     }
 

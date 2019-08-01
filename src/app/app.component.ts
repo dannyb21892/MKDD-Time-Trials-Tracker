@@ -4,6 +4,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { StandardsGrid } from './components/standards-grid.component'
 import { FAQComponent } from './components/faq.component'
 import { TreeViewComponent } from './components/treeview.component'
+import { SubmissionComponent } from './components/submission.component'
 
 
 @Component({
@@ -22,8 +23,11 @@ export class AppComponent implements OnInit{
   dumbChangeDetector = {};
 
   username: string = "";
-  lastValidUsername: string = ""
   syncDisabled: boolean = true;
+
+  firstLoad: boolean = true
+
+  public loading: boolean = false
 
   @ViewChild("nameField", {static: false})
   nameField: ElementRef
@@ -32,70 +36,68 @@ export class AppComponent implements OnInit{
   private standardsGrid: StandardsGrid;
 
   ngOnInit() {
+    this.refreshAllData(false)
+  }
+
+  refreshAllData = (fromInputBar = false) => {
+    let firstLoad = this.firstLoad
+    this.firstLoad = false
+    this.loading = true
+    let userDataDone = false
+    let standardsDone = false
+    let wrsDone = false
     this.pps.getUserList().subscribe(() => {
       this.pps.getOverallRanks().subscribe(() => {
         let localStorage = this.pps.getLocalStorage()
-        if(localStorage && localStorage.username){
-          this.username = localStorage.username
-          this.pps.getUserData(localStorage.username).subscribe((data) => {
+        if((localStorage && localStorage.username) || fromInputBar){
+          this.username = fromInputBar ? this.username : (firstLoad ? localStorage.username : this.username)
+          this.pps.getUserData(this.username).subscribe((data) => {
+            this.pps.setLocalStorage()
             this.userData = data;
             this.syncDisabled = false
+            userDataDone = true
+            if(standardsDone && wrsDone) this.loading = false
           })
         }
         else {
+          this.pps.setLocalStorage(null)
           this.pps.getUserData("").subscribe((data) => {
             this.userData = data;
             this.syncDisabled = false
+            userDataDone = true
+            if(standardsDone && wrsDone) this.loading = false
           })
         }
       })
-    })
+      }
+    )
     this.pps.getStandards().subscribe(
       data => {
         this.standards = data
-      },
-      error => {
+        standardsDone = true
+        if(userDataDone && wrsDone) this.loading = false
       }
     )
     this.pps.getWRs().subscribe(
       data => {
         this.wrs = data
-      },
-      error => {
+        wrsDone = true
+        if(standardsDone && userDataDone) this.loading = false
       }
     )
-  }
-
-  getUserData = () => {
-    this.pps.getUserData(this.username, true).subscribe(
-      (data) => {
-        if(Object.keys(data).length){
-          this.userData = data;
-          this.syncDisabled = false
-        } else {
-          this.userData = {};
-          this.syncDisabled = false;
-          this.username = "";
-        }
-      },
-      (error) => {
-      }
-    )
-    this.nameField.nativeElement.removeEventListener("keypress", this.onEnter)
   }
 
   listenForEnter = () => {
     this.nameField.nativeElement.addEventListener("keypress", this.onEnter)
   }
 
-  syncData = () => {
-    this.pps.setLocalStorage(null)
-    this.dumbChangeDetector = {};
+  removeListener = () => {
+    this.nameField.nativeElement.removeEventListener("keypress", this.onEnter)
   }
 
   onEnter = key => {
     if(key.key === "Enter"){
-      this.getUserData()
+      this.refreshAllData(true)
     }
   }
 
@@ -105,5 +107,9 @@ export class AppComponent implements OnInit{
 
   showTreeView = () => {
     let dialogRef = this.dialog.open(TreeViewComponent, {width: '300px', maxWidth: "100%", maxHeight: "630px", height: "630px", data: this.standardsGrid.gridColumnApi});
+  }
+
+  submit = () => {
+    let dialogRef = this.dialog.open(SubmissionComponent, {width: '500px', maxWidth: "100%", maxHeight: "850px", height: "850px", data: this.standardsGrid.gridApi});
   }
 }

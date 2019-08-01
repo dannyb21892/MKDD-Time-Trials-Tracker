@@ -10,7 +10,9 @@ import { AgGridModule } from 'ag-grid-angular';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material';
 import { TreeviewModule } from 'ngx-treeview';
+import { NgxLoadingModule, ngxLoadingAnimationTypes } from 'ngx-loading';
 
 
 //components
@@ -20,6 +22,9 @@ import { OverallStats } from './components/overall-stats.component'
 import { CellEditorComponent } from './components/cell-editor.component'
 import { FAQComponent } from './components/faq.component'
 import { TreeViewComponent } from './components/treeview.component'
+import { SubmissionComponent } from './components/submission.component'
+import { SingleSyncRenderer } from 'src/app/components/single-sync-renderer.component';
+
 
 @NgModule({
   declarations: [
@@ -28,21 +33,25 @@ import { TreeViewComponent } from './components/treeview.component'
     CellEditorComponent,
     OverallStats,
     FAQComponent,
-    TreeViewComponent
+    TreeViewComponent,
+    SubmissionComponent,
+    SingleSyncRenderer
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
     HttpClientModule,
-    AgGridModule.withComponents([]),
+    AgGridModule.withComponents([SingleSyncRenderer]),
     MatInputModule,
     MatButtonModule,
     MatDialogModule,
-    TreeviewModule.forRoot()
+    MatIconModule,
+    TreeviewModule.forRoot(),
+    NgxLoadingModule.forRoot({animationType: ngxLoadingAnimationTypes.wanderingCubes,})
   ],
   providers: [],
   bootstrap: [AppComponent],
-  entryComponents: [CellEditorComponent, FAQComponent, TreeViewComponent]
+  entryComponents: [CellEditorComponent, FAQComponent, TreeViewComponent, SubmissionComponent]
 })
 export class AppModule { }

@@ -39,7 +39,7 @@ export class OverallStats implements OnInit, OnChanges {
 
     let row = {}
 
-    let nonStdCols = ["id", "course", "time", "date", "prsr", "rank", "std", "points", "trial", "value", "goal-time", "goal-rank", "time-to-go", "difficulty"]
+    let nonStdCols = ["id", "sync", "course", "time", "date", "prsr", "rank", "std", "points", "trial", "value", "goal-time", "goal-rank", "time-to-go", "difficulty"]
 
     let points = this.parentRowData.map(r => r.points)
     row["points"] = points.length ? Math.round(100*points.reduce((a,b) => a + Number(b), 0)/points.length)/100 : "N/A"
@@ -69,7 +69,7 @@ export class OverallStats implements OnInit, OnChanges {
     let filtered = bestStdRows.map(row =>{
       let keyVals = Object.entries(row)
       return keyVals.map(keyVal => {
-        return nonStdCols.includes(keyVal[0]) ? {diff: -1, row: row, col: keyVal[0]} : {diff: row["value"] - this.timeConverter(keyVal[1]), row: row, col: keyVal[0]}
+        return nonStdCols.includes(keyVal[0]) ? {diff: -1, row: row, col: keyVal[0]} : {diff: this.timeConverter(row["time"]) - this.timeConverter(keyVal[1]), row: row, col: keyVal[0]}
       }).filter(x => x.diff > 0 || x.row["std"] === "God+10").sort((a,b) => a.diff-b.diff)[0]
     })
     filtered.forEach(f => {
@@ -90,10 +90,10 @@ export class OverallStats implements OnInit, OnChanges {
 
     let worstPts = Math.max(...this.parentRowData.map(r => r["points"]))
     let worstStdRows = this.parentRowData.filter(r => r["points"] === worstPts)
-    let filtered2 = worstStdRows.map(row =>{
+    let filtered2 = worstStdRows.map(row => {
       let keyVals = Object.entries(row)
       return keyVals.map(keyVal => {
-        return nonStdCols.includes(keyVal[0]) ? {diff: -1, row: row, col: keyVal[0]} : {diff: row["value"] - this.timeConverter(keyVal[1]), row: row, col: keyVal[0]}
+        return nonStdCols.includes(keyVal[0]) ? {diff: -1, row: row, col: keyVal[0]} : {diff: this.timeConverter(row["time"]) - this.timeConverter(keyVal[1]), row: row, col: keyVal[0]}
       }).filter(x => x.diff > 0 || x.row["std"] === "God+10").sort((a,b) => a.diff-b.diff)[0]
     })
     filtered2.forEach(f => {

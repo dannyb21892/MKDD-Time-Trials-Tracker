@@ -1,0 +1,30 @@
+<div style="height: 580px; text-align: center; position: relative;">
+  <div *ngIf="newPlayer && displayItems">
+    Seems like your username doesn't exist on the Player's Page yet. Fill out this info before submitting.
+    <br/>
+    <br/>
+    <input [(ngModel)]="country" placeholder="Country">
+    <br/>
+    <input [(ngModel)]="town" placeholder="Town / Region">
+    <br/>
+    <input [(ngModel)]="email" placeholder="Email Address">
+  </div>
+  <div *ngIf="displayItems; else noItems" style="margin-top: 20px;">
+    The following times will be submitted:
+    <ol>
+      <li *ngFor="let item of items">{{item[0]}}: {{item[1]}}</li>
+    </ol>
+  </div>
+  <ng-template #noItems>
+    No times are eligible to be submitted. Go beat some PRs!
+  </ng-template>
+  <div style="margin-top: 20px; position: absolute; margin-bottom: 20px;">
+    <button mat-raised-button
+            style="width: 200px; min-width: 200px; height: 50px; text-align: center; margin-left: 125px;"
+            color="primary"
+            (click)="submit()"
+            [disabled]="!(displayItems && (!newPlayer || (country && town && email)))">
+            Submit to Player's Page
+    </button>
+  </div>
+</div>
