@@ -433,7 +433,7 @@ export class PlayersPageService implements OnInit{
     )
   }
 
-  setLocalStorage = (rowData = null) => {
+  setLocalStorage = (rowData = null, ignoreOld = false) => {
     let data: any = this.getLocalStorage()
     let obj = {
       username: this.username,
@@ -441,7 +441,7 @@ export class PlayersPageService implements OnInit{
     if(rowData && rowData.id) {
       obj[`${rowData.id}`] = rowData
     }
-    if(data.username === this.username){
+    if(data.username === this.username && !ignoreOld){
       obj = Object.assign(data, obj)
     }
     window.localStorage.setItem("mkdd--userData", JSON.stringify(obj))
