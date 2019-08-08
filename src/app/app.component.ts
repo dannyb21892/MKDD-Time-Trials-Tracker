@@ -52,7 +52,7 @@ export class AppComponent implements OnInit{
         if((localStorage && localStorage.username) || fromInputBar){
           this.username = fromInputBar ? this.username : (firstLoad ? localStorage.username : this.username)
           this.pps.getUserData(this.username).subscribe((data) => {
-            this.pps.setLocalStorage(null, true)
+            this.pps.setLocalStorage(null, !firstLoad)
             this.userData = data;
             this.syncDisabled = false
             userDataDone = true
@@ -60,7 +60,7 @@ export class AppComponent implements OnInit{
           })
         }
         else {
-          this.pps.setLocalStorage(null, true)
+          this.pps.setLocalStorage(null, !firstLoad)
           this.pps.getUserData("").subscribe((data) => {
             this.userData = data;
             this.syncDisabled = false

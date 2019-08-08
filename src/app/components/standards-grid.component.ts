@@ -308,7 +308,7 @@ export class StandardsGrid implements OnInit, OnChanges {
 
   onFirstDataRendered(params) {
     let colVisPrefs: any = window.localStorage.getItem("mkdd--colVisPrefs")
-    colVisPrefs = colVisPrefs === "null" ? [] : colVisPrefs.split(",")
+    colVisPrefs = colVisPrefs === null ? [] : colVisPrefs.split(",")
     if(colVisPrefs && colVisPrefs.length){
       this.gridColumnApi.setColumnsVisible(this.gridColumnApi.getAllColumns().map(col => col.colId), false)
       this.gridColumnApi.setColumnsVisible(colVisPrefs, true)
