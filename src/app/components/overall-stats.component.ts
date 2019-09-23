@@ -51,7 +51,17 @@ export class OverallStats implements OnInit, OnChanges {
     row["prsr"] = prsrs.length ? Math.min(100, (Math.round(100*prsrs.reduce((a,b) => a + Number(b.slice(0,-1)), 0)/prsrs.length)/100)) + "%" : "N/A"
 
     let pointPairs = Object.entries(this.pointMap).sort((a,b) => Number(a[1]) - Number(b[1]))
-    let std = pointPairs.find(x => x[1] > row["points"])
+    let std
+    let pts = Math.round(row["points"])
+    if(std >= 0.5){
+      std = pointPairs.find(x => Number(x[1]) === pts)
+    }
+    else if(std > 0){
+      std = "Myth+"
+    }
+    else {
+      std = pointPairs.find(x => Number(x[1]) >= pts)
+    }
     row["std"] = std ? std[0] : "Newbie"
 
     row["rank"] = this.pps.getRankByAf(row["af"])

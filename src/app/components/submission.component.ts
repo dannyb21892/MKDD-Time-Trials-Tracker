@@ -15,6 +15,7 @@ export class SubmissionComponent implements OnInit {
   country = null
   town = null
   email = null
+  message=''
 
   constructor(public dialogRef: MatDialogRef<SubmissionComponent>,
               private pps: PlayersPageService,
@@ -51,10 +52,6 @@ export class SubmissionComponent implements OnInit {
         }
       }
     }
-    data += "&message=&name="
-
-    if(!this.newPlayer)
-      data += encodeURI(username).split("%20").join("+")
 
     this.data = data
   }
@@ -62,6 +59,10 @@ export class SubmissionComponent implements OnInit {
   submit = () => {
     //newname=&country=&region=&addy=&hertz=sixty&
     let username = this.pps.getUsername()
+    this.data += "&message=" + encodeURI(this.message).split("%20").join("+")
+    if(!this.newPlayer)
+      this.data += "&name=" + encodeURI(username).split("%20").join("+")
+
     if(this.newPlayer) this.data = "newname=" + encodeURI(username).split("%20").join("+") +
                                    "&country=" + encodeURI(this.country).split("%20").join("+") +
                                    "&region=" + encodeURI(this.town).split("%20").join("+") +
@@ -74,7 +75,6 @@ export class SubmissionComponent implements OnInit {
     this.items.forEach(i => {
       subHistory[username][i[2]] = this.pps.timeConverter(i[1])
     })
-
     this.pps.postSubmission(this.data, subHistory)
     this.dialogRef.close()
   }

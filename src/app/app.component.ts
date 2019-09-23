@@ -4,6 +4,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { StandardsGrid } from './components/standards-grid.component'
 import { FAQComponent } from './components/faq.component'
 import { TreeViewComponent } from './components/treeview.component'
+import { AllTracksComponent } from './components/all-tracks.component'
 import { SubmissionComponent } from './components/submission.component'
 
 
@@ -107,6 +108,10 @@ export class AppComponent implements OnInit{
 
   showTreeView = () => {
     let dialogRef = this.dialog.open(TreeViewComponent, {width: '300px', maxWidth: "100%", maxHeight: "630px", height: "630px", data: this.standardsGrid.gridColumnApi});
+  }
+
+  showAllTracks = () => {
+    let dialogRef = this.dialog.open(AllTracksComponent, {width: '550px', maxWidth: "100%", maxHeight: "750px", height: "750px", data: {gridApi: this.standardsGrid.gridApi, username: this.username}});
   }
 
   submit = () => {

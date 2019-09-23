@@ -1,0 +1,46 @@
+<div style="display: flex;">
+  <div style="width: 50%;">
+    <h2>Current Track: {{currentCourse}}</h2>
+    <h4>Best Split: {{currentGold}}</h4>
+    <h4>PB Run's Split: {{currentPbSplit}}</h4>
+    <input [(ngModel)]="m" placeholder="minutes"><br>
+    <input [(ngModel)]="s" placeholder="seconds"><br>
+    <input [(ngModel)]="ms" placeholder="milliseconds"><br><br>
+    <button mat-raised-button
+            style="width: 200px; min-width: 200px; height: 50px; text-align: center;"
+            color="primary"
+            (click)="submit()"
+            [disabled]="false">
+            Split
+    </button>
+    <br>
+    <h4>PB Comparison: {{totalDiff}}</h4>
+    <br>
+    <br>
+    <p *ngIf="invalidInput" style="color: red">
+      Invalid input. Please enter integer numbers of minutes between 0 and 9,
+      seconds between 0 and 59, and milliseconds between 0 and 999.
+    </p>
+    <p *ngIf="newPB">
+      Congratulations on the PB! If you got any best splits, be sure to enter
+      them into the main grid after closing this popup window.Take the total
+      time on the right and submit it to the All Tracks category on speedrun.com/mkdd
+    </p>
+    <p *ngIf="noNewPB">
+      No PB, better luck next time. If you got any best splits, be sure to enter
+      them into the main grid after closing this popup window.
+    </p>
+    <button mat-raised-button
+            style="width: 200px; min-width: 200px; height: 50px; text-align: center;"
+            color="accent"
+            (click)="clearPB()"
+            [disabled]="false">
+            Clear Stored PB
+    </button>
+  </div>
+  <div style="width: 50%; padding-left: 15px;">
+    <p *ngFor="let time of readouts">{{time}}</p>
+    <p>Total Time: {{total}}</p>
+    <p>Best Possible Time: {{bpt}}</p>
+  </div>
+</div>

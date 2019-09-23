@@ -494,7 +494,7 @@ export class PlayersPageService implements OnInit{
     val = Math.round(val*1000)/1000 //round to nearest thousandth to prevent floating point inaccuracy
     let minutes = Math.floor(val/60)
     let seconds = Math.floor(val - 60*minutes)
-    let milliseconds: any = Math.ceil(1000*(val - Math.floor(val)))
+    let milliseconds: any = Math.round(1000*(val - Math.floor(val)))
     let out = minutes ? `${minutes}'` : ""
     out += seconds === 0 ? (minutes ? '00"' : '0"') : (seconds < 10 ? (minutes ? `0${seconds}"` : `${seconds}"`) : `${seconds}"`)
     milliseconds = milliseconds === 0 ? '0' : (milliseconds < 10 ? `00${milliseconds}` : (milliseconds < 100 ? `0${milliseconds}` : `${milliseconds}`))

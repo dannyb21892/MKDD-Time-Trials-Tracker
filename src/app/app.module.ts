@@ -22,6 +22,7 @@ import { OverallStats } from './components/overall-stats.component'
 import { CellEditorComponent } from './components/cell-editor.component'
 import { FAQComponent } from './components/faq.component'
 import { TreeViewComponent } from './components/treeview.component'
+import { AllTracksComponent } from './components/all-tracks.component'
 import { SubmissionComponent } from './components/submission.component'
 import { SingleSyncRenderer } from 'src/app/components/single-sync-renderer.component';
 
@@ -34,6 +35,7 @@ import { SingleSyncRenderer } from 'src/app/components/single-sync-renderer.comp
     OverallStats,
     FAQComponent,
     TreeViewComponent,
+    AllTracksComponent,
     SubmissionComponent,
     SingleSyncRenderer
   ],
@@ -52,6 +54,6 @@ import { SingleSyncRenderer } from 'src/app/components/single-sync-renderer.comp
   ],
   providers: [],
   bootstrap: [AppComponent],
-  entryComponents: [CellEditorComponent, FAQComponent, TreeViewComponent, SubmissionComponent]
+  entryComponents: [CellEditorComponent, FAQComponent, TreeViewComponent, AllTracksComponent, SubmissionComponent]
 })
 export class AppModule { }
