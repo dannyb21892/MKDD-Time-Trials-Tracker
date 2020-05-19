@@ -16,7 +16,7 @@ export class PlayersPageService implements OnInit{
   private wrsURL: string = "https://www.mariokart64.com/mkdd/wrc.php"
   private leaderboardURL: string = "https://www.mariokart64.com/mkdd/coursec.php?cid="
   private overallRankURL: string = "https://www.mariokart64.com/mkdd/afc.php?cfilter=&full=on"
-  private submitURL: string = "http://snorge.wrvids.com/mkdd/email.php"
+  private submitURL: string = "http://www.mariokart64.com/cgi-bin/yabb2/YaBB.pl?num=1571543717;action=post2"//"http://snorge.wrvids.com/mkdd/email.php"
 
   //to submit, you have to post data like the following:
   //0=1%2717%22308&1=&2=&3=&4=&5=&6=&7=&8=&9=&10=&11=&12=&13=&14=&15=&16=&17=&18=&19=&20=&21=&22=&23=&24=&25=&26=&27=&28=&29=&30=&31=&message=Sorry+about+this+fake+submission%2C+was+testing+something.+Please+ignore.&name=Daniel+Baamonde
@@ -213,70 +213,55 @@ export class PlayersPageService implements OnInit{
         this.courseNames = courseNames
         this.userList[username].data = {}
         this.courseNames.forEach((c, ci) => {
-          let htmlSegment = data.split(c)[1].split("<td rowspan='2'>")[0]
-          if(htmlSegment.includes("<td>NT</td>")){
-            this.userList[username].data[this.courseNamesAbbv[ci]] = {
-              threeLap: {
-                value: 599.99,
-                rank: 9999,
-                std: "Newbie",
-                prsr: 0,
-                date: this.formatDate(new Date()),
-                time: `9'59"99`,
-                points: 31
-              },
-              fastLap: {
-                value: 599.99,
-                rank: 9999,
-                std: "Newbie",
-                prsr: 0,
-                date: this.formatDate(new Date()),
-                time: `9'59"99`,
-                points: 31
-              }
-            }
+          let htmlSegment = data.split(c)[1].split("<td rowspan='2'>")[0];
+          let newbieData = {
+            value: 599.99,
+            rank: 9999,
+            std: "Newbie",
+            prsr: 0,
+            date: this.formatDate(new Date()),
+            time: `9'59"99`,
+            points: 31
+          }
+          let threeLapRow = htmlSegment.split("<tr>")[0]
+          let fastLapRow = htmlSegment.split("<tr>")[1]
+          let threeLapStats
+          let fastLapStats
+          if(threeLapRow.includes("<td>NT</td>")){
+            threeLapStats = null
           }
           else {
-            let threeLapRow = htmlSegment.split("<tr>")[0]
-            let fastLapRow = htmlSegment.split("<tr>")[1]
-            let threeLapStats
-            let fastLapStats
-            if(threeLapRow.includes("<td>NT</td>")){
-              threeLapStats = null
-            }
-            else {
-              threeLapStats = threeLapRow.split('onmouseover="show(')[1]
-                            .split(');" onmouseout="hide();')[0]
-                            .split(",")
-            }
-            if(fastLapRow.includes("<td>NT</td>")){
-              fastLapStats = null
-            }
-            else {
-              fastLapStats = fastLapRow.split('onmouseover="show(')[1]
-                            .split(');" onmouseout="hide();')[0]
-                            .split(",")
-            }
-            this.userList[username].data[this.courseNamesAbbv[ci]] = {
-              threeLap: threeLapStats ? {
-                value: Number(threeLapStats[1]),
-                rank: Number(threeLapStats[2].slice(2,-1)),
-                std: threeLapStats[3].slice(1,-1),
-                prsr: Number(threeLapStats[5].slice(2,-1)),
-                date: threeLapStats.slice(-1)[0].slice(2,-1).split("'")[0],
-                time: threeLapRow.split(";'>")[1].split("<")[0],
-                points: Number(threeLapRow.split(" / ")[0].slice(-6).split(">")[1])
-              } : null,
-              fastLap: fastLapStats ? {
-                value: Number(fastLapStats[1]),
-                rank: Number(fastLapStats[2].slice(2,-1)),
-                std: fastLapStats[3].slice(1,-1),
-                prsr: Number(fastLapStats[5].slice(2,-1)),
-                date: fastLapStats.slice(-1)[0].slice(2,-1).split("'")[0],
-                time: fastLapRow.split(";'>")[1].split("<")[0],
-                points: Number(fastLapRow.split(" / ")[0].slice(-6).split(">")[1])
-              } : null
-            }
+            threeLapStats = threeLapRow.split('onmouseover="show(')[1]
+                          .split(');" onmouseout="hide();')[0]
+                          .split(",")
+          }
+          if(fastLapRow.includes("<td>NT</td>")){
+            fastLapStats = null
+          }
+          else {
+            fastLapStats = fastLapRow.split('onmouseover="show(')[1]
+                          .split(');" onmouseout="hide();')[0]
+                          .split(",")
+          }
+          this.userList[username].data[this.courseNamesAbbv[ci]] = {
+            threeLap: threeLapStats ? {
+              value: Number(threeLapStats[1]),
+              rank: Number(threeLapStats[2].slice(2,-1)),
+              std: threeLapStats[3].slice(1,-1),
+              prsr: Number(threeLapStats[5].slice(2,-1)),
+              date: threeLapStats.slice(-1)[0].slice(2,-1).split("'")[0],
+              time: threeLapRow.split(";'>")[1].split("<")[0],
+              points: Number(threeLapRow.split(" / ")[0].slice(-6).split(">")[1])
+            } : newbieData,
+            fastLap: fastLapStats ? {
+              value: Number(fastLapStats[1]),
+              rank: Number(fastLapStats[2].slice(2,-1)),
+              std: fastLapStats[3].slice(1,-1),
+              prsr: Number(fastLapStats[5].slice(2,-1)),
+              date: fastLapStats.slice(-1)[0].slice(2,-1).split("'")[0],
+              time: fastLapRow.split(";'>")[1].split("<")[0],
+              points: Number(fastLapRow.split(" / ")[0].slice(-6).split(">")[1])
+            } : newbieData
           }
         })
         return this.userList[username].data
@@ -447,18 +432,25 @@ export class PlayersPageService implements OnInit{
     window.localStorage.setItem("mkdd--userData", JSON.stringify(obj))
   }
 
-  postSubmission = (data, subHistory) => {
+  postSubmission = (data, subHistory, username) => {
     let address = this.corsAnywhere + this.submitURL
+    let headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
+    headers.append('Cookie', 'Y2User-28901=dbaamonde21892; Y2Sess-28901=iJ7L5HAFZ4qz1qWPqUpy/A; Y2Pass-28901=/qtlSSpQv0cCtToaW//eIQ');
+    console.log(new HttpHeaders().set('Cookie', 'Y2User-28901=dbaamonde21892; Y2Sess-28901=iJ7L5HAFZ4qz1qWPqUpy/A; Y2Pass-28901=/qtlSSpQv0cCtToaW//eIQ'))
     let options: any = {
-        headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded'),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Cookie': 'Y2User-28901=dbaamonde21892; Y2Sess-28901=iJ7L5HAFZ4qz1qWPqUpy/A; Y2Pass-28901=/qtlSSpQv0cCtToaW//eIQ'
+        },
         responseType: 'text'
     };
-    if(data.includes("newname=&")){
+    if(!username){
       alert("Invalid Username")
     }
     else {
       this.http.post(address, data, options).subscribe(
         (x: any) => {
+          debugger;
           if(x.includes("Message successfully sent!")){
             alert("Times successfully submitted!")
             window.localStorage.setItem("mkdd--submissions", JSON.stringify(subHistory))

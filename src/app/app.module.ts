@@ -13,7 +13,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material';
 import { TreeviewModule } from 'ngx-treeview';
 import { NgxLoadingModule, ngxLoadingAnimationTypes } from 'ngx-loading';
-
+import { ClipboardModule } from 'ngx-clipboard';
 
 //components
 import { AppComponent } from './app.component';
@@ -50,7 +50,8 @@ import { SingleSyncRenderer } from 'src/app/components/single-sync-renderer.comp
     MatDialogModule,
     MatIconModule,
     TreeviewModule.forRoot(),
-    NgxLoadingModule.forRoot({animationType: ngxLoadingAnimationTypes.wanderingCubes,})
+    NgxLoadingModule.forRoot({animationType: ngxLoadingAnimationTypes.wanderingCubes,}),
+    ClipboardModule
   ],
   providers: [],
   bootstrap: [AppComponent],

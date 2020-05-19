@@ -15,21 +15,61 @@
       <li *ngFor="let item of items">{{item[0]}}: {{item[1]}}</li>
     </ol>
     <br>
-    Include a message?
-    <br>
-    <br>
-    <textarea [(ngModel)]='message'></textarea>
+    <div style="display: flex; justify-content: space-evenly;">
+      <div style="margin-right: 10px;">
+        Choose Frame rate:
+        <br/>
+        <br/>
+        <input type="radio" value="60Hz" [checked]="hz==='60Hz'" (change)="onHzChange($event)">
+        <label for="60Hz">60Hz</label><br>
+        <input type="radio" value="50Hz" [checked]="hz==='50Hz'" (change)="onHzChange($event)">
+        <label for="50Hz">50Hz</label><br>
+      </div>
+      <div style="overflow-x: scroll;">
+        Add a message?
+        <br/>
+        <br/>
+        <textarea [(ngModel)]='message'></textarea>
+      </div>
+    </div>
   </div>
   <ng-template #noItems>
-    No times are eligible to be submitted. Go beat some PRs!
+    <div *ngIf="!preview">
+      No times are eligible to be submitted. Go beat some PRs!
+    </div>
   </ng-template>
-  <div style="margin-top: 20px; position: absolute; margin-bottom: 20px;">
+  <div *ngIf="!preview" style="margin-top: 20px; position: absolute; margin-bottom: 20px;">
     <button mat-raised-button
             style="width: 200px; min-width: 200px; height: 50px; text-align: center; margin-left: 125px;"
             color="primary"
             (click)="submit()"
-            [disabled]="!(displayItems && (!newPlayer || (country && town && email)))">
+            [disabled]="!displayItems">
             Submit to Player's Page
+    </button>
+  </div>
+
+  <div *ngIf="preview">
+    <div [innerHTML]="preview" #previewEl style="border-width:1px; border-color:white; border-style: solid;"></div>
+    <br/>
+    <button mat-raised-button
+            style="width: 200px; min-width: 200px; height: 50px; text-align: center;"
+            color="primary"
+            (click)="copyText()">
+            {{copied ? 'Text Copied!' : 'Copy Submission Text'}}
+    </button>
+    <br/>
+    <p>Copy the above submission preview and click
+      <a href="http://www.mariokart64.com/cgi-bin/yabb2/YaBB.pl?num=1571543717" target="_blank">this link</a>
+      to get to the forum topic for submissions. If you do not have an account there, you will need to make one first.
+      Paste in a topic reply to submit your times! This tool used to be able to submit directly, but that function is no longer possible, sorry!
+    </p>
+  </div>
+  <div *ngIf="preview" style="margin-top: 20px; position: absolute; margin-bottom: 20px;">
+    <button mat-raised-button
+            style="width: 200px; min-width: 200px; height: 50px; text-align: center; margin-left: 125px;"
+            color="accent"
+            (click)="goBack()">
+            Edit Information
     </button>
   </div>
 </div>

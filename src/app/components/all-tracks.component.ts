@@ -44,7 +44,11 @@ export class AllTracksComponent implements OnInit {
 
   ngOnInit() {
     let allTracksPbs = JSON.parse(window.localStorage.getItem("mkdd--allTracks"))
-    if(!allTracksPbs) window.localStorage.setItem("mkdd--allTracks", `{${this.inputData.username}: []}`)
+    if(!allTracksPbs && this.inputData.username) {
+      let newAllTracks = {};
+      newAllTracks[`${this.inputData.username}`] = [];
+      window.localStorage.setItem("mkdd--allTracks", JSON.stringify(newAllTracks))
+    }
     this.pb = allTracksPbs && allTracksPbs[this.inputData.username] ? allTracksPbs[this.inputData.username] : []
     this.pbTime = this.valueConverter(this.pb.reduce((a,b) => a + b, 0))
 
