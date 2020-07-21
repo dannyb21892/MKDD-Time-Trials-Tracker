@@ -10,7 +10,7 @@ import { Observable, of } from 'rxjs'
 export class PlayersPageService implements OnInit{
 
   //use the cors anywhere link for local testing. use the aqueous-anchorage link when building for production
-  private corsAnywhere: string = "https://aqueous-anchorage-29772.herokuapp.com/"//"https://cors-anywhere.herokuapp.com/"//
+  private corsAnywhere: string = "https://aqueous-anchorage-29772.herokuapp.com/"//"https://cors-anywhere.herokuapp.com/"//"https://aqueous-anchorage-29772.herokuapp.com/"//
   private standardsURL: string = "https://www.mariokart64.com/mkdd/standardc.php"
   private usersURL: string = "https://www.mariokart64.com/mkdd/profile.php"
   private wrsURL: string = "https://www.mariokart64.com/mkdd/wrc.php"
@@ -412,7 +412,9 @@ export class PlayersPageService implements OnInit{
           let username = row.split("<td>")[2].split("</td>")[0]
           let rank = row.split("<td>")[1].split("</td>")[0]
           this.afs.push(Number(row.split("<td>")[6].split("</td>")[0]))
-          this.userList[username]["rank"] = Number(rank)
+          if(this.userList[username]){
+            this.userList[username]["rank"] = Number(rank)
+          }
         })
       })
     )
